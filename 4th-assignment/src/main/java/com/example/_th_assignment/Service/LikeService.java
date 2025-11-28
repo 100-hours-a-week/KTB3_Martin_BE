@@ -115,6 +115,10 @@ public class LikeService {
         return postLikeJpaRepository.existsByPost_IdAndUser_EmailAndIsdeletedFalse(postid, authorEmail);
     }
 
+    public List<Object[]> countGroupByPostId(List<Long> postids){
+        return postLikeJpaRepository.countGroupByPost_IdAndIsdeletedFalse(postids);
+    }
+
 
 
 

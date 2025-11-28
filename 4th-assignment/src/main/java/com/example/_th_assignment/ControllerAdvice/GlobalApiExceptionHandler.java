@@ -4,6 +4,7 @@ package com.example._th_assignment.ControllerAdvice;
 import com.example._th_assignment.ApiResponse.ApiResponse;
 import com.example._th_assignment.CustomException.DtoConflictException;
 import com.example._th_assignment.CustomException.DtoNotFoundException;
+import com.example._th_assignment.CustomException.UrlBadRequestException;
 import com.example._th_assignment.CustomException.UserUnAuthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -39,12 +40,12 @@ public class GlobalApiExceptionHandler {
 
     @ExceptionHandler(DtoNotFoundException.class)
     public ResponseEntity<?> handleDtoNotFound(DtoNotFoundException ex) {
-        HttpStatusCode statuscode = HttpStatus.NOT_FOUND;
-        HttpStatus status = HttpStatus.valueOf(statuscode.value());
+        HttpStatusCode statusCode = HttpStatus.NOT_FOUND;
+        HttpStatus status = HttpStatus.valueOf(statusCode.value());
         String message = ex.getMessage();
 
         return ResponseEntity
-                .status(statuscode)
+                .status(statusCode)
                 .body(ApiResponse.failed(status.getReasonPhrase(), message));
     }
 
@@ -86,6 +87,13 @@ public class GlobalApiExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.failed(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Malformed JSON"));
+    }
+
+    @ExceptionHandler(UrlBadRequestException.class)
+    public ResponseEntity<?> handleBadUrl(UrlBadRequestException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failed(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Malformed URL"));
     }
 
 

@@ -32,4 +32,10 @@ public interface PostLikeJpaRepository extends JpaRepository<PostLike, Long> {
     long countAllByPost_IdAndIsdeletedFalse(long postId);
 
     Optional<PostLike> findByPost_IdAndUser_Email(Long postid, String email);
+
+    @Query("select pl.post.id, count(*) " +
+            "from PostLike pl " +
+            "where pl.post.id in :postids and pl.isdeleted = false " +
+            "group by pl.post.id")
+    List<Object[]> countGroupByPost_IdAndIsdeletedFalse(@Param("postids") List<Long> postids);
 }

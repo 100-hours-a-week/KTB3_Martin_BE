@@ -29,6 +29,7 @@ public class UserApiController {
     private final UserService userService;
     private final SessionManager sessionManager;
     private final FileStorageService fileStorageService;
+    private final String USER = "user";
 
     @Autowired
     public UserApiController (UserService userService,
@@ -78,10 +79,8 @@ public class UserApiController {
     })
     public ResponseEntity<Object> register(
             @Validated(ValidationGroup.Register.class) @RequestBody RequestUserDto newuser){
-        checkValidPassword(newuser);
-        checkValidNickname(newuser);
-        UserDto user = userService.apply2User(newuser);
-        user = userService.saveUser(user);
+
+        UserDto user = userService.saveUser(newuser);
         return ResponseEntity.ok(ApiResponse.success("register success", user));
 
     }
@@ -100,11 +99,9 @@ public class UserApiController {
             HttpServletRequest request) {
         HttpSession session = sessionManager.access2Auth(request);
         UserDto user = (UserDto) session.getAttribute("user");
-        checkValidNickname(newuser);
 
-        user = userService.apply2UserForUpdate(newuser, user);
-        user = userService.updateUser(user.getEmail(),user);
-        session.removeAttribute("user");
+
+        user = userService.updateUser(newuser,user);
         session.setAttribute("user", user);
 
         return ResponseEntity.ok(ApiResponse.success("update success", user));
@@ -118,13 +115,14 @@ public class UserApiController {
     ){
 
         HttpSession session = sessionManager.access2Auth(request);
-        checkValidPassword(newuser);
+
         UserDto user = (UserDto) session.getAttribute("user");
 
 
-        user = userService.apply2UserForPassword(newuser, user);
-        user = userService.updateUserPassword(user.getEmail(),user);
-        session.removeAttribute("user");
+
+
+        user = userService.updateUserPassword(newuser,user);
+
         session.setAttribute("user", user);
 
         return ResponseEntity.ok().body(ApiResponse.success("password updated", user));
@@ -143,18 +141,6 @@ public class UserApiController {
 
     }
 
-    public void checkValidPassword(RequestUserDto user){
-        if(!user.getPassword().equals(user.getCheckingpassword()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password and checkingpassword are not same");
-    }
-
-    public void checkValidNickname(RequestUserDto user){
-        String nickname = user.getNickname();
-        nickname = nickname.replaceAll(" ", "").toLowerCase();
-        String unknown = "unknown";
-        if(nickname.equals(unknown))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nickname cannot be unknown");
-    }
 
     @GetMapping("/email-conflict")
     public ResponseEntity<?> existEmail(@RequestParam(value = "email") String email) {
@@ -176,7 +162,7 @@ public class UserApiController {
         }
 
 
-        String url = fileStorageService.saveImage(image);
+        String url = fileStorageService.saveImage(image, "profile");
 
         return ResponseEntity.ok(Map.of("url", url));
     }

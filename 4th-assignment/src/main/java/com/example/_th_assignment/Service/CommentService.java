@@ -118,5 +118,9 @@ public class CommentService {
         return new CommentDto(id,postid,author,authorEmail,content,birthtime);
     }
 
+    public List<Object[]> countGroupByPostId(List<Long> postIds) {
+        return commentJpaRepository.countgroupbypost_id(postIds);
+    }
+
 
 }

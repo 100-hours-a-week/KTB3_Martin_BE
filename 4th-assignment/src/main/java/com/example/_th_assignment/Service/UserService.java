@@ -15,9 +15,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
     private final UserJpaRepository userJpaRepository;
+    private final Validator validator;
 
     @Autowired
-    public UserService(UserJpaRepository userJpaRepository) {
+    public UserService(UserJpaRepository userJpaRepository, Validator validator) {
+        this.validator = validator;
         this.userJpaRepository = userJpaRepository;
     }
 
@@ -29,13 +31,18 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto saveUser (UserDto userDto){
+    public UserDto saveUser (RequestUserDto request){
+        validator.checkValidNickname(request);
+        validator.checkValidPassword(request);
+        UserDto userDto = apply2User(request);
+
         if(userJpaRepository.existsByEmail(userDto.getEmail())){
             throw new UserConflictException(userDto.getEmail());
         }
         if(userJpaRepository.existsByNickname(userDto.getNickname())){
             throw new UserNicknameConflictException(userDto.getNickname());
         }
+
         String password = BCrypt.hashpw(userDto.getPassword(), BCrypt.gensalt());
         userDto.setPassword(password);
         User user= User.from(userDto);
@@ -44,25 +51,32 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto updateUser(String useremail, UserDto newuser) {
-        User user = findByEmail(useremail);
-        user.updateUser(newuser);
+    public UserDto updateUser(RequestUserDto request, UserDto sessionUser) {
+        validator.checkValidNickname(request);
+        UserDto userdto = apply2UserForUpdate(request, sessionUser);
+        User user = findByEmail(userdto.getEmail());
+        user.updateUser(userdto);
 
         return user.toUserDto();
     }
+
     @Transactional
-    public UserDto updateUserPassword(String useremail, UserDto newuser) {
-        User user = findByEmail(useremail);
-        String password = BCrypt.hashpw(newuser.getPassword(), BCrypt.gensalt());
-        newuser.setPassword(password);
+    public UserDto updateUserPassword(RequestUserDto request, UserDto sessionUser) {
+
+
+        validator.checkValidPassword(request);
+        User user = findByEmail(sessionUser.getEmail());
+
+        String password = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt());
         user.changePwd(password);
         return user.toUserDto();
     }
 
     @Transactional
-    public void deleteUser(UserDto user){
-        User userentity = findByEmail(user.getEmail());
-        userentity.delete();
+    public void deleteUser(UserDto userdto){
+        User user = findByEmail(userdto.getEmail());
+
+        user.delete();
     }
 
     public UserDto checkUser(String username, String password) {
@@ -83,14 +97,6 @@ public class UserService {
         return new UserDto(nickname, email, password, image);
     }
 
-    public UserDto apply2UserForPassword(RequestUserDto requestUserDto, UserDto user){
-        String nickname = user.getNickname();
-        String email = user.getEmail();
-        String password = requestUserDto.getPassword();
-        String image = user.getImageurl();
-
-        return new UserDto(nickname, email, password, image);
-    }
 
     public boolean existemail(String email){
         return userJpaRepository.existsByEmail(email);

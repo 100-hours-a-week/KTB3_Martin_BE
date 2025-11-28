@@ -47,6 +47,8 @@ public class PostApiController {
     @JsonView(JsonViewGroup.summaryview.class)
     public ResponseEntity<Object> getPosts(HttpServletRequest request) {
         sessionManager.access2Resource(request);
+
+
         List<PostDto> posts = postService.getAllPosts();
         List<ResponsePostDto> responsePosts = new ArrayList<>();
         for (PostDto postDto : posts) {

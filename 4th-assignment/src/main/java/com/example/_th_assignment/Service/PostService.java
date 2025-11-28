@@ -12,14 +12,18 @@ import com.example._th_assignment.JpaRepository.PostJpaRepository;
 import com.example._th_assignment.JpaRepository.PostLikeJpaRepository;
 import com.example._th_assignment.JpaRepository.UserJpaRepository;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class PostService {
 
 
@@ -27,19 +31,21 @@ public class PostService {
     private final UserJpaRepository userJpaRepository;
     private final CommentService commentService;
     private final LikeService likeService;
+    private final SessionManager sessionManager;
+    private final AuthorizationManager authorizationManager;
 
 
-    @Autowired
-    public PostService(PostJpaRepository postJpaRepository,
-                       UserJpaRepository userJpaRepository,
-                       CommentService commentService,
-                       LikeService likeService) {
-
-        this.postJpaRepository = postJpaRepository;
-        this.userJpaRepository = userJpaRepository;
-        this.commentService = commentService;
-        this.likeService = likeService;
-    }
+//    @Autowired
+//    public PostService(PostJpaRepository postJpaRepository,
+//                       UserJpaRepository userJpaRepository,
+//                       CommentService commentService,
+//                       LikeService likeService) {
+//
+//        this.postJpaRepository = postJpaRepository;
+//        this.userJpaRepository = userJpaRepository;
+//        this.commentService = commentService;
+//        this.likeService = likeService;
+//    }
     public Post findPostById(long id) {
         return postJpaRepository.findByidAndIsdeletedFalse(id)
                 .orElseThrow(()-> new PostNotFoundException(id));
@@ -56,13 +62,35 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<PostDto> getAllPosts() {
         List<Post> postList= postJpaRepository.findAllByIsdeletedFalse();
-        List<PostDto> postDtoList = new ArrayList<>();
-        for(Post post:postList){
-            PostDto postDto = post.toDto();
-            postDtoList.add(postDto);
+
+        return postList.stream().map(Post::toDto).toList();
+    }
+
+    //TODO: 게시글 전부 가져오고 댓글, 좋아요 그룹화
+    @Transactional(readOnly = true)
+    public List<ResponsePostDto> getAllResponsePosts() {
+        List<PostDto> postdtos = getAllPosts();
+
+        List<Long> postIds = postdtos.stream().map(PostDto::getId).toList();
+        Map<Long, Long> commentGroup = commentService.countGroupByPostId(postIds)
+                .stream().collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
+        Map<Long, Long> likeGroup = likeService.countGroupByPostId(postIds)
+                .stream().collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));;
+
+        List<ResponsePostDto> responsePosts = new ArrayList<>();
+        for (PostDto postDto : postdtos) {
+            long commentnum = commentGroup.getOrDefault(postDto.getId(), 0L);
+            long likenum = likeGroup.getOrDefault(postDto.getId(), 0L);
+            responsePosts.add(apply2ResponsePostDto(postDto, commentnum, likenum));
         }
 
-        return postDtoList;
+        return responsePosts;
     }
 
     @Transactional

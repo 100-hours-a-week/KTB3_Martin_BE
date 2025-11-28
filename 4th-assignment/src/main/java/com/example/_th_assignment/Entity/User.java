@@ -54,7 +54,7 @@ public class User {
         String nickname = userDto.getNickname();
         String email = userDto.getEmail();
         String password = userDto.getPassword();
-        String image = userDto.getImageurl();
+        String image = userDto.getImage();
         return new User(nickname, email, password, image);
     }
 
@@ -69,7 +69,7 @@ public class User {
     public void updateUser(UserDto userDto){
         this.nickname = userDto.getNickname();
         this.email = userDto.getEmail();
-        this.image_path = userDto.getImageurl();
+        this.image_path = userDto.getImage();
     }
 
     public void changePwd(String newpassword){
