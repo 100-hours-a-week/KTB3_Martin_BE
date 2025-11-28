@@ -72,7 +72,6 @@ public class CommentApiController {
     public ResponseEntity<Object>  postComment(
             @PathVariable Long postid, @Valid @RequestBody CommentDto comment, HttpServletRequest request){
         sessionManager.access2Auth(request);
-        postService.findPostById(postid);
         UserDto user = (UserDto) request.getSession().getAttribute("user");
 
 

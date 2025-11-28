@@ -16,11 +16,15 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserJpaRepository userJpaRepository;
     private final Validator validator;
+    private final FileStorageService fileStorageService;
 
     @Autowired
-    public UserService(UserJpaRepository userJpaRepository, Validator validator) {
+    public UserService(UserJpaRepository userJpaRepository,
+                       Validator validator,
+                       FileStorageService fileStorageService) {
         this.validator = validator;
         this.userJpaRepository = userJpaRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     public User findByEmail(String email){
@@ -77,6 +81,7 @@ public class UserService {
         User user = findByEmail(userdto.getEmail());
 
         user.delete();
+        fileStorageService.deleteImage(user.getImage_path());
     }
 
     public UserDto checkUser(String username, String password) {

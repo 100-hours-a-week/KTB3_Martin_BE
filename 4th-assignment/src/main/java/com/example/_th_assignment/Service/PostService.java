@@ -32,6 +32,7 @@ public class PostService {
     private final UserJpaRepository userJpaRepository;
     private final CommentService commentService;
     private final LikeService likeService;
+    private final FileStorageService fileStorageService;
 
 
 
@@ -133,6 +134,8 @@ public class PostService {
         post.delete();
         commentService.deleteAllComment(id);
         likeService.deleteAllLike(id);
+        fileStorageService.deleteImage(post.getImageurl());
+
     }
     @Transactional
     public PostDto updatePost(Long id, RequestPostDto request) {

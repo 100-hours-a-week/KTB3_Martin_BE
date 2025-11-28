@@ -5,6 +5,7 @@ import com.example._th_assignment.CustomException.LikeNotFoundException;
 import com.example._th_assignment.CustomException.PostNotFoundException;
 import com.example._th_assignment.CustomException.UserNotFoundException;
 import com.example._th_assignment.Dto.LikeDto;
+import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Entity.Post;
 import com.example._th_assignment.Entity.PostLike;
 import com.example._th_assignment.Entity.User;
@@ -62,7 +63,8 @@ public class LikeService {
 
 
     @Transactional
-    public LikeDto saveLike(Long postid, LikeDto likeDto){
+    public LikeDto saveLike(Long postid, UserDto userDto){
+        LikeDto likeDto = new LikeDto(postid, userDto.getEmail());
         String email = likeDto.getAuthorEmail();
 
         Optional <PostLike> existing= postLikeJpaRepository.findByPost_IdAndUser_Email(postid,email);

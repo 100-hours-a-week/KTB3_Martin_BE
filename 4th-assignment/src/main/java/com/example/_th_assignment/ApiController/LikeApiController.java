@@ -54,9 +54,8 @@ public class LikeApiController {
 
 
 
-        LikeDto like = new LikeDto(postId, user.getEmail());
 
-        like = likeService.saveLike(postId, like);
+        LikeDto like = likeService.saveLike(postId, user);
         URI location = URI.create("/likes/" + postId + "?user=" + like.getAuthorEmail());
         return ResponseEntity.created(location).body(ApiResponse.success("save like success", like));
     }
