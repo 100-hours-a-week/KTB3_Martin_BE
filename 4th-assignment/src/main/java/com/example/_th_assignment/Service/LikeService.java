@@ -12,7 +12,6 @@ import com.example._th_assignment.Entity.User;
 import com.example._th_assignment.JpaRepository.PostJpaRepository;
 import com.example._th_assignment.JpaRepository.PostLikeJpaRepository;
 import com.example._th_assignment.JpaRepository.UserJpaRepository;
-import com.example._th_assignment.etc.Repository.LikeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

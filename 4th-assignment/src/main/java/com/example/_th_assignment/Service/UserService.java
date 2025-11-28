@@ -7,6 +7,7 @@ import com.example._th_assignment.Dto.Request.RequestUserDto;
 import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Entity.User;
 import com.example._th_assignment.JpaRepository.UserJpaRepository;
+import com.example._th_assignment.Mapper.UserMapper;
 import jakarta.transaction.Transactional;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class UserService {
     public UserDto saveUser (RequestUserDto request){
         validator.checkValidNickname(request);
         validator.checkValidPassword(request);
-        UserDto userDto = apply2User(request);
+        UserDto userDto = UserMapper.apply2User(request);
 
         if(userJpaRepository.existsByEmail(userDto.getEmail())){
             throw new UserConflictException(userDto.getEmail());
@@ -57,7 +58,7 @@ public class UserService {
     @Transactional
     public UserDto updateUser(RequestUserDto request, UserDto sessionUser) {
         validator.checkValidNickname(request);
-        UserDto userdto = apply2UserForUpdate(request, sessionUser);
+        UserDto userdto = UserMapper.apply2UserForUpdate(request, sessionUser);
         User user = findByEmail(userdto.getEmail());
         user.updateUser(userdto);
 
@@ -90,17 +91,7 @@ public class UserService {
             throw new UserUnAuthorizedException(username);
         return user.toUserDto();
     }
-    public UserDto apply2User(RequestUserDto requestUserDto) {
-        return new UserDto(requestUserDto);
-    }
 
-    public UserDto apply2UserForUpdate(RequestUserDto requestUserDto, UserDto user){
-        String nickname = requestUserDto.getNickname();
-        String email = user.getEmail();
-        String password = user.getPassword();
-        String image = requestUserDto.getImage();
-        return new UserDto(nickname, email, password, image);
-    }
 
 
     public boolean existemail(String email){

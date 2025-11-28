@@ -11,7 +11,7 @@ import com.example._th_assignment.Entity.User;
 import com.example._th_assignment.JpaRepository.CommentJpaRepository;
 import com.example._th_assignment.JpaRepository.PostJpaRepository;
 import com.example._th_assignment.JpaRepository.UserJpaRepository;
-import com.example._th_assignment.etc.Repository.CommentRepository;
+import com.example._th_assignment.Mapper.CommentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ import java.util.List;
 public class CommentService {
 
 
-    private final CommentRepository commentRepository;
+
     private final UserJpaRepository userJpaRepository;
     private final PostJpaRepository postJpaRepository;
     private final CommentJpaRepository commentJpaRepository;
@@ -32,9 +32,7 @@ public class CommentService {
     public CommentService(
                           UserJpaRepository userJpaRepository,
                           PostJpaRepository postJpaRepository,
-                          CommentJpaRepository commentJpaRepository,
-                          CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
+                          CommentJpaRepository commentJpaRepository) {
         this.userJpaRepository = userJpaRepository;
         this.postJpaRepository = postJpaRepository;
         this.commentJpaRepository = commentJpaRepository;
@@ -64,7 +62,7 @@ public class CommentService {
     }
     @Transactional
     public CommentDto saveComment(CommentDto commentDto, UserDto userDto) {
-        CommentDto newComment = apply2Comment(commentDto, userDto);
+        CommentDto newComment = CommentMapper.apply2Comment(commentDto, userDto);
         long postId = newComment.getPostid();
         String email = newComment.getAuthorEmail();
 
@@ -110,16 +108,6 @@ public class CommentService {
         return commentJpaRepository.countByPost_IdAndIsdeletedFalse(postId);
     }
 
-    public CommentDto apply2Comment(CommentDto requestcomment, UserDto user){
-        long id = requestcomment.getId();
-        long postid = requestcomment.getPostid();
-        String content = requestcomment.getContent();
-        String authorEmail = user.getEmail();
-        String author = user.getNickname();
-        String birthtime = requestcomment.getBirthTime();
-
-        return new CommentDto(id,postid,author,authorEmail,content,birthtime);
-    }
 
     @Transactional(readOnly = true)
     public List<Object[]> countGroupByPostId(List<Long> postIds) {
