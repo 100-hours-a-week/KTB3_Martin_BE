@@ -46,7 +46,7 @@ public class CommentController {
     public String postComment(@PathVariable Long postId,
                               @ModelAttribute CommentDto newcomment) {
         String tmp = newcomment.getContent().replaceAll("\\s", "");
-        if(!tmp.equals("")) commentService.saveComment(postId, newcomment);
+//        if(!tmp.equals("")) commentService.saveComment(postId, newcomment);
 
         return "redirect:/posts/" + postId;
     }

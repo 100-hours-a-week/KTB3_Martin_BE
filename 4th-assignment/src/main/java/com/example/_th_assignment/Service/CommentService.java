@@ -63,14 +63,16 @@ public class CommentService {
         return comment.toDto();
     }
     @Transactional
-    public CommentDto saveComment(Long postId, CommentDto commentDto) {
-        String email = commentDto.getAuthorEmail();
+    public CommentDto saveComment(CommentDto commentDto, UserDto userDto) {
+        CommentDto newComment = apply2Comment(commentDto, userDto);
+        long postId = newComment.getPostid();
+        String email = newComment.getAuthorEmail();
 
         User user = userJpaRepository.findByEmailAndIsdeletedFalse(email)
                 .orElseThrow(()-> new UserUnAuthorizedException(email));
         Post post = postJpaRepository.findByidAndIsdeletedFalse(postId)
                 .orElseThrow(()-> new PostNotFoundException(postId));
-        Comment comment = Comment.from(commentDto, user, post);
+        Comment comment = Comment.from(newComment, user, post);
         comment = commentJpaRepository.save(comment);
 
         return comment.toDto();
@@ -103,6 +105,7 @@ public class CommentService {
         }
     }
 
+    @Transactional(readOnly = true)
     public long countByPostId(Long postId) {
         return commentJpaRepository.countByPost_IdAndIsdeletedFalse(postId);
     }
@@ -118,6 +121,7 @@ public class CommentService {
         return new CommentDto(id,postid,author,authorEmail,content,birthtime);
     }
 
+    @Transactional(readOnly = true)
     public List<Object[]> countGroupByPostId(List<Long> postIds) {
         return commentJpaRepository.countgroupbypost_id(postIds);
     }

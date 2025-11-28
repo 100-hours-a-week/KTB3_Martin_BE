@@ -76,8 +76,8 @@ public class CommentApiController {
         UserDto user = (UserDto) request.getSession().getAttribute("user");
 
 
-        CommentDto newcomment = commentService.apply2Comment(comment,user);
-        newcomment = commentService.saveComment(postid, newcomment);
+
+        CommentDto newcomment = commentService.saveComment(comment, user);
 
 
         URI location = ServletUriComponentsBuilder
