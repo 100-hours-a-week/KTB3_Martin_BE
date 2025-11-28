@@ -1,4 +1,4 @@
-package com.example._th_assignment.Dto;
+package com.example._th_assignment.Dto.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

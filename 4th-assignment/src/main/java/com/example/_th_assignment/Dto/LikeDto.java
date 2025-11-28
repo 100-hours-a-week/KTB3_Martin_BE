@@ -1,16 +1,18 @@
 package com.example._th_assignment.Dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
+
 
 public class LikeDto {
     private Long id;
     private Long postid;
-    private String author = "unknown";
     private String authorEmail;
 
-
     @JsonIgnore
-    private Boolean isdeleted = false;
+    private boolean isdeleted = false;
+
+
 
     public LikeDto() {
     }
@@ -19,30 +21,19 @@ public class LikeDto {
         this.authorEmail = authorEmail;
     }
 
-    public LikeDto(long id, long postid, String author, String authorEmail) {
+    public LikeDto(long id, long postid, String authorEmail) {
         this.id = id;
         this.postid = postid;
-        this.author = author;
         this.authorEmail = authorEmail;
     }
 
-    public String getAuthor() {
-        return author;
-    }
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-    public Long getPostid() {
-        return postid;
+
+
+    public long getPostid(){
+        return this.postid;
     }
     public void setPostid(Long postid) {
         this.postid = postid;
-    }
-    public Boolean getIsdeleted() {
-        return isdeleted;
-    }
-    public void setIsdeleted(Boolean isdeleted) {
-        this.isdeleted = isdeleted;
     }
     public String getAuthorEmail() {
         return authorEmail;
@@ -57,4 +48,11 @@ public class LikeDto {
         this.id = id;
     }
 
+    public boolean getIsdeleted() {
+        return isdeleted;
+    }
+
+    public void setIsdeleted(boolean b) {
+        isdeleted = b;
+    }
 }

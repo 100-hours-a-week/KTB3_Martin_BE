@@ -1,7 +1,8 @@
-package com.example._th_assignment.Repository;
+package com.example._th_assignment.etc.Repository;
 
 
 import com.example._th_assignment.Dto.UserDto;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,7 +16,8 @@ public class UserRepository {
 
     public UserRepository() {
         userStore = new HashMap<>();
-        UserDto user = new UserDto("dummy", "foo@bar", "Mypassword1!", "");
+        String password = BCrypt.hashpw("Mypassword1!", BCrypt.gensalt());
+        UserDto user = new UserDto("dummy", "foo@bar", password, "");
         save(user);
     }
 

@@ -1,4 +1,4 @@
-package com.example._th_assignment.Controller;
+package com.example._th_assignment.etc.Controller;
 
 import com.example._th_assignment.Dto.CommentDto;
 import com.example._th_assignment.Service.CommentService;

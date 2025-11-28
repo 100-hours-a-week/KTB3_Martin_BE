@@ -7,17 +7,12 @@ import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Service.LikeService;
 import com.example._th_assignment.Service.PostService;
 import com.example._th_assignment.Service.SessionManager;
-import com.example._th_assignment.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +36,6 @@ public class LikeApiController {
             @PathVariable Long postid, @RequestParam(value = "user", required = false) String email,
             HttpServletRequest request) {
         sessionManager.access2Resource(request);
-        postService.getPost(postid);
 
 
         if(email ==null) {
@@ -60,22 +54,11 @@ public class LikeApiController {
 
 
 
-        LikeDto like = likeService.apply2Like(new LikeDto(), user);
+        LikeDto like = new LikeDto(postId, user.getEmail());
 
         like = likeService.saveLike(postId, like);
         URI location = URI.create("/likes/" + postId + "?user=" + like.getAuthorEmail());
         return ResponseEntity.created(location).body(ApiResponse.success("save like success", like));
-    }
-    @PutMapping("/{postId}")
-    public ResponseEntity<?> updateLike(@PathVariable Long postId, HttpServletRequest request) {
-        sessionManager.access2Resource(request);
-        UserDto user = (UserDto) request.getSession().getAttribute("user");
-
-        LikeDto like = likeService.getbyPostIdAndAuthorEmail(postId, user.getEmail());
-        like = likeService.apply2Like(like, user);
-        like = likeService.updateLike(postId,user.getEmail(), like);
-
-        return ResponseEntity.ok(ApiResponse.success("update like success", like));
     }
 
     @DeleteMapping("/{postId}")
@@ -87,6 +70,18 @@ public class LikeApiController {
         likeService.deleteLike(postId,user.getEmail());
 
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/mylike/{postId}")
+    public ResponseEntity<?> getLikes(@PathVariable Long postId, HttpServletRequest request) {
+        sessionManager.access2Resource(request);
+        UserDto user = (UserDto) request.getSession().getAttribute("user");
+
+        String email = user.getEmail();
+
+        boolean exist = likeService.existlike(postId, email);
+
+        return ResponseEntity.ok(exist);
+
     }
 
 

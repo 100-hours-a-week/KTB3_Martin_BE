@@ -1,45 +1,90 @@
 package com.example._th_assignment.Service;
 
 import com.example._th_assignment.CustomException.PostNotFoundException;
+import com.example._th_assignment.CustomException.UserUnAuthorizedException;
 import com.example._th_assignment.Dto.*;
-import com.example._th_assignment.Repository.PostRepository;
+import com.example._th_assignment.Dto.Request.RequestPostDto;
+import com.example._th_assignment.Dto.Response.ResponsePostAndCommentsDto;
+import com.example._th_assignment.Dto.Response.ResponsePostDto;
+import com.example._th_assignment.Entity.Post;
+import com.example._th_assignment.Entity.User;
+import com.example._th_assignment.JpaRepository.PostJpaRepository;
+import com.example._th_assignment.JpaRepository.PostLikeJpaRepository;
+import com.example._th_assignment.JpaRepository.UserJpaRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PostService {
 
 
-    private final PostRepository postRepository;
+    private final PostJpaRepository postJpaRepository;
+    private final UserJpaRepository userJpaRepository;
+    private final CommentService commentService;
+    private final LikeService likeService;
+
 
     @Autowired
-    public PostService(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+    public PostService(PostJpaRepository postJpaRepository,
+                       UserJpaRepository userJpaRepository,
+                       CommentService commentService,
+                       LikeService likeService) {
 
-    public List<PostDto> getAllPosts() {
-        return postRepository.getAllPosts();
+        this.postJpaRepository = postJpaRepository;
+        this.userJpaRepository = userJpaRepository;
+        this.commentService = commentService;
+        this.likeService = likeService;
     }
-
-    public PostDto getPost(long id) {
-        return postRepository.getbyId(id)
+    public Post findPostById(long id) {
+        return postJpaRepository.findByidAndIsdeletedFalse(id)
                 .orElseThrow(()-> new PostNotFoundException(id));
     }
 
-    public PostDto savePost(PostDto postDto){
-        return postRepository.save(postDto);
+
+    @Transactional
+    public PostDto getPostById(long id) {
+        Post post = findPostById(id);
+        post.plusViewCount();
+        return post.toDto();
     }
 
+    @Transactional(readOnly = true)
+    public List<PostDto> getAllPosts() {
+        List<Post> postList= postJpaRepository.findAllByIsdeletedFalse();
+        List<PostDto> postDtoList = new ArrayList<>();
+        for(Post post:postList){
+            PostDto postDto = post.toDto();
+            postDtoList.add(postDto);
+        }
+
+        return postDtoList;
+    }
+
+    @Transactional
+    public PostDto savePost(PostDto postDto) {
+        User user = userJpaRepository.findByEmailAndIsdeletedFalse(postDto.getAuthorEmail())
+                .orElseThrow(() -> new UserUnAuthorizedException(postDto.getAuthorEmail()));
+        Post post = Post.from(postDto, user);
+        post = postJpaRepository.save(post);
+        return post.toDto();
+    }
+    @Transactional
     public void deletePost(long id) {
-        getPost(id);
-        postRepository.delete(id);
+        Post post = findPostById(id);
+        post.delete();
+        commentService.deleteAllComment(id);
+        likeService.deleteAllLike(id);
     }
-
+    @Transactional
     public PostDto updatePost(Long id, PostDto postDto) {
-        getPost(id);
-        return postRepository.update(id, postDto);
+        Post post = findPostById(id);
+        post.updatePost(postDto);
+        return post.toDto();
     }
 
     public ResponsePostDto apply2ResponsePostDto(PostDto postDto, long commentnum, long likenum) {
@@ -56,7 +101,7 @@ public class PostService {
         String title = requestPostDto.getTitle();
         String content = requestPostDto.getContent();
         String author = postDto.getAuthor();
-        long view = postDto.getView();
+        long view = postDto.getViewcount();
         String birthtime = postDto.getBirthtime();
         String image = "";
 
@@ -68,10 +113,6 @@ public class PostService {
 
     }
 
-
-    public long count(){
-        return postRepository.count();
-    }
 
 
 

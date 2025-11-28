@@ -2,6 +2,9 @@ package com.example._th_assignment.ApiController;
 
 import com.example._th_assignment.ApiResponse.ApiResponse;
 import com.example._th_assignment.Dto.*;
+import com.example._th_assignment.Dto.Request.RequestPostDto;
+import com.example._th_assignment.Dto.Response.ResponsePostAndCommentsDto;
+import com.example._th_assignment.Dto.Response.ResponsePostDto;
 import com.example._th_assignment.Service.*;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,9 +70,9 @@ public class PostApiController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getPost(@PathVariable long id, HttpServletRequest request) {
         sessionManager.access2Resource(request);
-        PostDto post = postService.getPost(id);
+        PostDto post = postService.getPostById(id);
 
-        post.setView(post.getView()+1);
+
 
         long commentsnum = commentService.countByPostId((post.getId()));
         long likesnum = likeService.countByPostId((post.getId()));
@@ -109,8 +112,8 @@ public class PostApiController {
         sessionManager.access2Resource(request);
 
         UserDto user = (UserDto) request.getSession().getAttribute("user");
-        PostDto post = postService.getPost(id);
-        String writerEmail = user.getEmail();
+        PostDto post = postService.getPostById(id);
+        String writerEmail = post.getAuthorEmail();
 
         authorizationManager.checkAuth(request,writerEmail);
 
@@ -124,16 +127,13 @@ public class PostApiController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deletePost(@PathVariable long id, HttpServletRequest request){
         sessionManager.access2Resource(request);
-        UserDto user = (UserDto) request.getSession().getAttribute("user");
-        postService.getPost(id);
+        PostDto post = postService.getPostById(id);
 
-        String writerEmail = user.getEmail();
+        String writerEmail = post.getAuthorEmail();
 
         authorizationManager.checkAuth(request,writerEmail);
 
         postService.deletePost(id);
-        commentService.deleteAllComment(id);
-        likeService.deleteAllLike(id);
 
         return ResponseEntity.noContent().build();
 

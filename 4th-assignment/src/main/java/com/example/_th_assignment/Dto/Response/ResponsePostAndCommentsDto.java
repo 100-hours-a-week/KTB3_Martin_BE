@@ -1,5 +1,6 @@
-package com.example._th_assignment.Dto;
+package com.example._th_assignment.Dto.Response;
 
+import com.example._th_assignment.Dto.CommentDto;
 import lombok.Getter;
 
 import java.util.List;

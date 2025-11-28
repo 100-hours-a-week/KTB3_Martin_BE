@@ -1,4 +1,4 @@
-package com.example._th_assignment.Controller;
+package com.example._th_assignment.etc.Controller;
 
 import com.example._th_assignment.Dto.CommentDto;
 import com.example._th_assignment.Dto.PostDto;
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 @RequestMapping("/posts")
@@ -32,7 +31,7 @@ public class PostController {
     }
     @GetMapping("/{id}")
     public String getPost(@PathVariable Long id, Model model) {
-        model.addAttribute("post", postService.getPost(id));
+        model.addAttribute("post", postService.findPostById(id));
         model.addAttribute("comments", commentService.getByPostId(id));
         model.addAttribute("newcomment", new CommentDto());
         return "posts/detail";
@@ -58,7 +57,7 @@ public class PostController {
 
     @GetMapping("/{id}/form")
     public String getEditForm(@PathVariable Long id, Model model) {
-        model.addAttribute("postDto", postService.getPost(id));
+        model.addAttribute("postDto", postService.findPostById(id));
         return "posts/form";
     }
 

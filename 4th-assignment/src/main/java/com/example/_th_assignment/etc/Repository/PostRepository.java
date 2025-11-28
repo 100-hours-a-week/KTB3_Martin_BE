@@ -1,4 +1,4 @@
-package com.example._th_assignment.Repository;
+package com.example._th_assignment.etc.Repository;
 
 import com.example._th_assignment.Dto.PostDto;
 import org.springframework.http.HttpStatus;

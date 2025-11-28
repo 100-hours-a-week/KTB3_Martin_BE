@@ -1,10 +1,15 @@
-package com.example._th_assignment.Dto;
+package com.example._th_assignment.Dto.Request;
 
+import com.example._th_assignment.Dto.ValidationGroup;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class RequestUserDto {
     @NotBlank(message= "nickname should not empty",groups = {
             ValidationGroup.Register.class, ValidationGroup.UpdateProperty.class})
@@ -44,21 +49,5 @@ public class RequestUserDto {
 
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public String getCheckingpassword() {
-        return checkingpassword;
-    }
-    public String getNickname() {
-        return nickname;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public String getImage() {
-        return image;
-    }
 
 }

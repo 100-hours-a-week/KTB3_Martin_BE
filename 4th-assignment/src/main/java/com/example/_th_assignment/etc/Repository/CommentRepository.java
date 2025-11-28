@@ -1,4 +1,4 @@
-package com.example._th_assignment.Repository;
+package com.example._th_assignment.etc.Repository;
 
 import com.example._th_assignment.Dto.CommentDto;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,7 @@ public class CommentRepository {
                 .incrementAndGet();
 
         comment.setId(sequence);
-        comment.setPostId(postId);
+        comment.setPostid(postId);
         String timeStamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd' 'HH:mm:ss"));
         comment.setBirthTime(timeStamp);

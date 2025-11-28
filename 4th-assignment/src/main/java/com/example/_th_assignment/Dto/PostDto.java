@@ -1,9 +1,8 @@
 package com.example._th_assignment.Dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import lombok.Builder;
+
 
 public class PostDto {
 
@@ -22,10 +21,13 @@ public class PostDto {
     private String content;
 
     private String author = "unknown";
-    private long view = 0;
+    private long viewcount = 0;
     private String birthtime ="";
 
     private String image = "";
+
+    private String userimage = "";
+
 
     @JsonIgnore
     private Boolean isdeleted = false;
@@ -33,9 +35,6 @@ public class PostDto {
     public PostDto() {
     }
 
-    public PostDto(String authorEmail){
-        this.authorEmail = authorEmail;
-    }
 
     public PostDto(String authorEmail, String author){
         this.authorEmail = authorEmail;
@@ -49,14 +48,15 @@ public class PostDto {
         this.content = content;
     }
 
+    @Builder
     public PostDto(Long id, String authorEmail,
-                   String title, String content, String author, long view, String birthtime, String image) {
+                   String title, String content, String author, long viewcount, String birthtime, String image) {
         this.id = id;
         this.authorEmail = authorEmail;
         this.title = title;
         this.content = content;
         this.author = author;
-        this.view = view;
+        this.viewcount = viewcount;
         this.birthtime = birthtime;
         this.image = image;
     }
@@ -92,11 +92,11 @@ public class PostDto {
     public void setAuthor(String author) {
         this.author = author;
     }
-    public long getView() {
-        return view;
+    public long getViewcount() {
+        return viewcount;
     }
-    public void setView(long view) {
-        this.view = view;
+    public void setViewcount(long viewcount) {
+        this.viewcount = viewcount;
     }
     public String getBirthtime() {
         return birthtime;
@@ -117,6 +117,13 @@ public class PostDto {
     }
     public void setAuthorEmail(String authorEmail) {
         this.authorEmail = authorEmail;
+    }
+
+    public String getUserimage() {
+        return userimage;
+    }
+    public void setUserimage(String userimage) {
+        this.userimage = userimage;
     }
 
 
