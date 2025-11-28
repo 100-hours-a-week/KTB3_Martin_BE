@@ -51,7 +51,7 @@ public class CommentApiController {
     public ResponseEntity<Object> getComments(@Parameter(description = "조회할 게시글 id", required = true, example = "1")
                                                   @PathVariable Long postid, HttpServletRequest request){
         sessionManager.access2Resource(request);
-        postService.findPostById(postid);
+
         List<CommentDto> list = commentService.getByPostId(postid);
 
 
@@ -97,7 +97,6 @@ public class CommentApiController {
             @PathVariable Long postid, @PathVariable Long id,
             @Valid @RequestBody CommentDto comment, HttpServletRequest request){
         sessionManager.access2Resource(request);
-
         String writerEmail =commentService.getByPostIdAndCommentId(postid, id).getAuthorEmail();
         authorizationManager.checkAuth(request,writerEmail);
 
@@ -111,9 +110,7 @@ public class CommentApiController {
     public ResponseEntity<Map<String, Object>>  deleteComment(
             @PathVariable Long postid, @PathVariable Long id, HttpServletRequest request){
         sessionManager.access2Resource(request);
-
         String writerEmail = commentService.getByPostIdAndCommentId(postid, id).getAuthorEmail();
-
         authorizationManager.checkAuth(request,writerEmail);
 
         commentService.deleteComment(postid, id);

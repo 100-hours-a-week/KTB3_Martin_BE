@@ -63,7 +63,7 @@ public class PostController {
 
     @PutMapping("/{id}")
     public String updatePost(@PathVariable Long id, @ModelAttribute PostDto postDto) {
-        postService.updatePost(id, postDto);
+//        postService.updatePost(id, postDto);
         return "redirect:/posts/" + id;
 
     }

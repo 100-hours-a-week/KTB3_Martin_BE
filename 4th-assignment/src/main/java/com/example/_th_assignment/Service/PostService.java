@@ -4,6 +4,7 @@ import com.example._th_assignment.CustomException.PostNotFoundException;
 import com.example._th_assignment.CustomException.UserUnAuthorizedException;
 import com.example._th_assignment.Dto.*;
 import com.example._th_assignment.Dto.Request.RequestPostDto;
+import com.example._th_assignment.Dto.Request.RequestUserDto;
 import com.example._th_assignment.Dto.Response.ResponsePostAndCommentsDto;
 import com.example._th_assignment.Dto.Response.ResponsePostDto;
 import com.example._th_assignment.Entity.Post;
@@ -31,8 +32,7 @@ public class PostService {
     private final UserJpaRepository userJpaRepository;
     private final CommentService commentService;
     private final LikeService likeService;
-    private final SessionManager sessionManager;
-    private final AuthorizationManager authorizationManager;
+
 
 
 //    @Autowired
@@ -55,8 +55,26 @@ public class PostService {
     @Transactional
     public PostDto getPostById(long id) {
         Post post = findPostById(id);
-        post.plusViewCount();
+
+
         return post.toDto();
+
+    }
+
+    @Transactional
+    public ResponsePostAndCommentsDto getPostAndCommentsDto(long id) {
+
+        Post post = findPostById(id);
+        post.plusViewCount();
+        PostDto postDto = post.toDto();
+
+        long commentsnum = commentService.countByPostId((post.getId()));
+        long likesnum = likeService.countByPostId((post.getId()));
+        ResponsePostDto responsePost = apply2ResponsePostDto(postDto,commentsnum,likesnum);
+        List<CommentDto> comments = commentService.getByPostId(id);
+
+        return apply2ResponsePostAndCommentsDto(responsePost,comments);
+
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +84,7 @@ public class PostService {
         return postList.stream().map(Post::toDto).toList();
     }
 
-    //TODO: 게시글 전부 가져오고 댓글, 좋아요 그룹화
+
     @Transactional(readOnly = true)
     public List<ResponsePostDto> getAllResponsePosts() {
         List<PostDto> postdtos = getAllPosts();
@@ -92,9 +110,17 @@ public class PostService {
 
         return responsePosts;
     }
+    @Transactional()
+    public PostDto postPostDto(RequestPostDto request, UserDto userDto) {
+        PostDto postDto = new PostDto(userDto.getEmail(), userDto.getNickname());
+        PostDto post = apply2PostDto(request, postDto);
+
+        return savePost(post);
+    }
 
     @Transactional
     public PostDto savePost(PostDto postDto) {
+
         User user = userJpaRepository.findByEmailAndIsdeletedFalse(postDto.getAuthorEmail())
                 .orElseThrow(() -> new UserUnAuthorizedException(postDto.getAuthorEmail()));
         Post post = Post.from(postDto, user);
@@ -109,8 +135,11 @@ public class PostService {
         likeService.deleteAllLike(id);
     }
     @Transactional
-    public PostDto updatePost(Long id, PostDto postDto) {
+    public PostDto updatePost(Long id, RequestPostDto request) {
+
         Post post = findPostById(id);
+        PostDto postDto = post.toDto();
+        postDto = apply2PostDto(request, postDto);
         post.updatePost(postDto);
         return post.toDto();
     }

@@ -49,13 +49,7 @@ public class PostApiController {
         sessionManager.access2Resource(request);
 
 
-        List<PostDto> posts = postService.getAllPosts();
-        List<ResponsePostDto> responsePosts = new ArrayList<>();
-        for (PostDto postDto : posts) {
-            long commentnum = commentService.countByPostId((postDto.getId()));
-            long likenum = likeService.countByPostId((postDto.getId()));
-            responsePosts.add(postService.apply2ResponsePostDto(postDto, commentnum, likenum));
-        }
+        List<ResponsePostDto> responsePosts = postService.getAllResponsePosts();
         LinkedHashMap<String, Object> response = new LinkedHashMap<>();
         response.put ("message", "get all posts success");
         response.put("data", responsePosts);
@@ -72,19 +66,11 @@ public class PostApiController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getPost(@PathVariable long id, HttpServletRequest request) {
         sessionManager.access2Resource(request);
-        PostDto post = postService.getPostById(id);
 
 
 
-        long commentsnum = commentService.countByPostId((post.getId()));
-        long likesnum = likeService.countByPostId((post.getId()));
-
+        ResponsePostAndCommentsDto responsePostAndCommentsDto = postService.getPostAndCommentsDto(id);
         String message = "get post/"+id+ " success";
-        ResponsePostDto responsePost = postService.apply2ResponsePostDto(post,commentsnum,likesnum);
-        List<CommentDto> comments = commentService.getByPostId(id);
-
-        ResponsePostAndCommentsDto responsePostAndCommentsDto =
-                postService.apply2ResponsePostAndCommentsDto(responsePost,comments);
 
         return ResponseEntity.ok(ApiResponse.success(message,responsePostAndCommentsDto));
     }
@@ -94,8 +80,8 @@ public class PostApiController {
         HttpSession session = sessionManager.access2Auth(request);
         UserDto user = (UserDto) session.getAttribute("user");
 
-        PostDto post = postService.apply2PostDto(requestPostDto, new PostDto(user.getEmail(), user.getNickname()));
-        post = postService.savePost(post);
+
+        PostDto post = postService.postPostDto(requestPostDto, user);
 
 
         URI location = ServletUriComponentsBuilder
@@ -113,14 +99,13 @@ public class PostApiController {
             @Valid @RequestBody RequestPostDto requestPostDto, HttpServletRequest request){
         sessionManager.access2Resource(request);
 
-        UserDto user = (UserDto) request.getSession().getAttribute("user");
         PostDto post = postService.getPostById(id);
         String writerEmail = post.getAuthorEmail();
 
         authorizationManager.checkAuth(request,writerEmail);
 
-        post = postService.apply2PostDto(requestPostDto, post);
-        post = postService.updatePost(id, post);
+
+        post = postService.updatePost(id, requestPostDto);
 
 
         return ResponseEntity.ok(ApiResponse.success("update post success", post));
@@ -130,9 +115,7 @@ public class PostApiController {
     public ResponseEntity<Object> deletePost(@PathVariable long id, HttpServletRequest request){
         sessionManager.access2Resource(request);
         PostDto post = postService.getPostById(id);
-
         String writerEmail = post.getAuthorEmail();
-
         authorizationManager.checkAuth(request,writerEmail);
 
         postService.deletePost(id);
