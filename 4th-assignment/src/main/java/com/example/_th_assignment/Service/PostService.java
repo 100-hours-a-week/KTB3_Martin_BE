@@ -12,7 +12,7 @@ import com.example._th_assignment.Entity.Post;
 import com.example._th_assignment.Entity.User;
 import com.example._th_assignment.JpaRepository.PostJpaRepository;
 import com.example._th_assignment.JpaRepository.UserJpaRepository;
-import com.example._th_assignment.Mapper.PostMapper;
+import com.example._th_assignment.Service.Mapper.PostMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

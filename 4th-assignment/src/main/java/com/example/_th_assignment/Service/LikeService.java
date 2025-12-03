@@ -3,7 +3,7 @@ package com.example._th_assignment.Service;
 import com.example._th_assignment.CustomException.LikeConflictException;
 import com.example._th_assignment.CustomException.LikeNotFoundException;
 import com.example._th_assignment.CustomException.PostNotFoundException;
-import com.example._th_assignment.CustomException.UserNotFoundException;
+import com.example._th_assignment.CustomException.LikeAuthorNotFoundException;
 import com.example._th_assignment.Dto.LikeDto;
 import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Entity.Post;
@@ -81,7 +81,7 @@ public class LikeService {
         Post post = postJpaRepository.findByidAndIsdeletedFalse(postid)
                 .orElseThrow(() -> new PostNotFoundException(postid));
         User user = userJpaRepository.findByEmailAndIsdeletedFalse(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+                .orElseThrow(() -> new LikeAuthorNotFoundException(email));
         PostLike postLike = new PostLike(post, user);
         return postLikeJpaRepository.save(postLike).toDto();
     }

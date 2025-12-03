@@ -7,9 +7,9 @@ import com.example._th_assignment.Dto.Request.RequestUserDto;
 import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Entity.User;
 import com.example._th_assignment.JpaRepository.UserJpaRepository;
-import com.example._th_assignment.Mapper.UserMapper;
+import com.example._th_assignment.Service.Mapper.UserMapper;
 import jakarta.transaction.Transactional;
-import org.mindrot.jbcrypt.BCrypt;
+//import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,8 +48,8 @@ public class UserService {
             throw new UserNicknameConflictException(userDto.getNickname());
         }
 
-        String password = BCrypt.hashpw(userDto.getPassword(), BCrypt.gensalt());
-        userDto.setPassword(password);
+//        String password = BCrypt.hashpw(userDto.getPassword(), BCrypt.gensalt());
+//        userDto.setPassword(password);
         User user= User.from(userDto);
         userJpaRepository.save(user);
         return userDto;
@@ -72,8 +72,8 @@ public class UserService {
         validator.checkValidPassword(request);
         User user = findByEmail(sessionUser.getEmail());
 
-        String password = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt());
-        user.changePwd(password);
+//        String password = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt());
+//        user.changePwd(password);
         return user.toUserDto();
     }
 
@@ -87,8 +87,8 @@ public class UserService {
 
     public UserDto checkUser(String username, String password) {
         User user = findByEmail(username);
-        if(!BCrypt.checkpw(password, user.getPassword()))
-            throw new UserUnAuthorizedException(username);
+//        if(!BCrypt.checkpw(password, user.getPassword()))
+//            throw new UserUnAuthorizedException(username);
         return user.toUserDto();
     }
 

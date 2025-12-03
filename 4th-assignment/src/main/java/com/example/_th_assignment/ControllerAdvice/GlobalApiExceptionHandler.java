@@ -2,10 +2,7 @@ package com.example._th_assignment.ControllerAdvice;
 
 
 import com.example._th_assignment.ApiResponse.ApiResponse;
-import com.example._th_assignment.CustomException.DtoConflictException;
-import com.example._th_assignment.CustomException.DtoNotFoundException;
-import com.example._th_assignment.CustomException.UrlBadRequestException;
-import com.example._th_assignment.CustomException.UserUnAuthorizedException;
+import com.example._th_assignment.CustomException.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +62,16 @@ public class GlobalApiExceptionHandler {
 
         return ResponseEntity.status(statuscode)
                 .body(ApiResponse.failed(status.getReasonPhrase(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserFobiddenException.class)
+    public ResponseEntity<?> handleUserForbidden(UserFobiddenException ex){
+        HttpStatusCode statuscode = HttpStatus.FORBIDDEN;
+        HttpStatus status = HttpStatus.valueOf(statuscode.value());
+
+        return  ResponseEntity.status(statuscode)
+                .body(ApiResponse.failed(status.getReasonPhrase(), ex.getMessage()));
+
     }
 
 

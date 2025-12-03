@@ -20,5 +20,7 @@ public class Validator {
         if(nickname.equals(unknown))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nickname cannot be unknown");
     }
+
+
 }
 
