@@ -36,10 +36,6 @@
 - **Other:** Swagger 
 
 ---
-## ERD
-<img width="1072" height="691" alt="image" src="https://github.com/user-attachments/assets/190ebf01-c24e-4a26-9a40-366e70547d16" />
-
----
 
 ## 개발 기간
  - 2025.10.12 ~ 2025.12.11
