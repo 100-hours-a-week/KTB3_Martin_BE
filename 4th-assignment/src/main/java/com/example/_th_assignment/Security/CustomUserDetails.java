@@ -2,9 +2,13 @@ package com.example._th_assignment.Security;
 
 import com.example._th_assignment.Dto.UserDto;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
+
+
 
 public class CustomUserDetails implements UserDetails {
 
@@ -14,6 +18,11 @@ public class CustomUserDetails implements UserDetails {
     public CustomUserDetails(UserDto user, Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
         this.authorities = authorities;
+    }
+
+    public CustomUserDetails(UserDto user) {
+        this.user = user;
+        this.authorities =  List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
 

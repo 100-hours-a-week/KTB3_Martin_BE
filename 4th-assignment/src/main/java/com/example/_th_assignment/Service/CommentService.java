@@ -61,9 +61,8 @@ public class CommentService {
         return comment.toDto();
     }
     @Transactional
-    public CommentDto saveComment(CommentDto commentDto, UserDto userDto) {
+    public CommentDto saveComment(long postId, CommentDto commentDto, UserDto userDto) {
         CommentDto newComment = CommentMapper.apply2Comment(commentDto, userDto);
-        long postId = newComment.getPostid();
         String email = newComment.getAuthorEmail();
 
         User user = userJpaRepository.findByEmailAndIsdeletedFalse(email)

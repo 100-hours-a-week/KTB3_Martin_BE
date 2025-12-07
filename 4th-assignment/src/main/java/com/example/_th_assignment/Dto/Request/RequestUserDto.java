@@ -5,18 +5,19 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class RequestUserDto {
-    @NotBlank(message= "nickname should not empty",groups = {
+    @NotBlank(message= "nickname should not be empty",groups = {
             ValidationGroup.Register.class, ValidationGroup.UpdateProperty.class})
     private String nickname;
 
     @Email(message = "malformed email", groups = {ValidationGroup.Register.class})
-    @NotBlank(message= "nickname should not empty",
+    @NotBlank(message= "email should not be empty",
             groups = {ValidationGroup.Register.class})
     private String email;
 
@@ -40,6 +41,7 @@ public class RequestUserDto {
 
     public RequestUserDto() {}
 
+    @Builder
     public RequestUserDto(String nickname, String email, String password, String checkingpassword, String image) {
         this.nickname = nickname;
         this.email = email;

@@ -16,8 +16,10 @@ import com.example._th_assignment.Service.Mapper.PostMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,8 +70,11 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<PostDto> getAllPosts() {
         List<Post> postList = postJpaRepository.findAllByIsdeletedFalse();
+        Collections.reverse(postList);
 
         return postList.stream().map(Post::toDto).toList();
+
+
     }
 
 
@@ -124,7 +129,10 @@ public class PostService {
         post.delete();
         commentService.deleteAllComment(id);
         likeService.deleteAllLike(id);
-        fileStorageService.deleteImage(post.getImageurl());
+        if(StringUtils.hasText(post.getImageurl())) {
+            fileStorageService.deleteImage(post.getImageurl());
+
+        }
 
     }
 
@@ -134,6 +142,13 @@ public class PostService {
         Post post = findPostById(id);
         PostDto postDto = post.toDto();
         postDto = PostMapper.apply2PostDto(request, postDto);
+        if(!postDto.getImage().equals(request.getImage())) {
+            if(request.getImage() != null) {
+                fileStorageService.deleteImage(postDto.getImage());
+
+            }
+
+        }
         post.updatePost(postDto);
         return post.toDto();
     }

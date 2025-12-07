@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/api/images")
 public class ImageApiController {
@@ -40,7 +42,8 @@ public class ImageApiController {
                 .body(ApiResponse.failed("image cannot be empty", "image is empty"));
 
         String url = fileStorageService.saveImage(image, imageType.name().toLowerCase());
-        return ResponseEntity.ok(ApiResponse.success("file save success",url));
+        return ResponseEntity.ok(Map.of("url", url));
+
     }
 
 

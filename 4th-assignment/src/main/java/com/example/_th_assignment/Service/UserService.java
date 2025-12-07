@@ -1,5 +1,6 @@
 package com.example._th_assignment.Service;
 
+import com.example._th_assignment.CustomException.DtoNotFoundException;
 import com.example._th_assignment.CustomException.UserConflictException;
 import com.example._th_assignment.CustomException.UserNicknameConflictException;
 import com.example._th_assignment.CustomException.UserUnAuthorizedException;
@@ -8,10 +9,16 @@ import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Entity.User;
 import com.example._th_assignment.JpaRepository.UserJpaRepository;
 import com.example._th_assignment.Service.Mapper.UserMapper;
-import jakarta.transaction.Transactional;
-//import org.mindrot.jbcrypt.BCrypt;
+
+import org.apache.coyote.BadRequestException;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -48,8 +55,8 @@ public class UserService {
             throw new UserNicknameConflictException(userDto.getNickname());
         }
 
-//        String password = BCrypt.hashpw(userDto.getPassword(), BCrypt.gensalt());
-//        userDto.setPassword(password);
+        String password = BCrypt.hashpw(userDto.getPassword(), BCrypt.gensalt());
+        userDto.setPassword(password);
         User user= User.from(userDto);
         userJpaRepository.save(user);
         return userDto;
@@ -60,6 +67,7 @@ public class UserService {
         validator.checkValidNickname(request);
         UserDto userdto = UserMapper.apply2UserForUpdate(request, sessionUser);
         User user = findByEmail(userdto.getEmail());
+        fileStorageService.deleteImage(user.getImage_path());
         user.updateUser(userdto);
 
         return user.toUserDto();
@@ -72,8 +80,8 @@ public class UserService {
         validator.checkValidPassword(request);
         User user = findByEmail(sessionUser.getEmail());
 
-//        String password = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt());
-//        user.changePwd(password);
+        String password = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt());
+        user.changePwd(password);
         return user.toUserDto();
     }
 
@@ -85,20 +93,20 @@ public class UserService {
         fileStorageService.deleteImage(user.getImage_path());
     }
 
-    public UserDto checkUser(String username, String password) {
-        User user = findByEmail(username);
-//        if(!BCrypt.checkpw(password, user.getPassword()))
-//            throw new UserUnAuthorizedException(username);
-        return user.toUserDto();
-    }
 
 
 
+    @Transactional(readOnly = true)
     public boolean existemail(String email){
+        if(email == null ||email.isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "email is empty");
         return userJpaRepository.existsByEmail(email);
     }
 
+    @Transactional(readOnly = true)
     public boolean existnickname(String nickname){
+        if(nickname == null || nickname.isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "nickname is empty");
         return userJpaRepository.existsByNickname(nickname);
     }
 }
