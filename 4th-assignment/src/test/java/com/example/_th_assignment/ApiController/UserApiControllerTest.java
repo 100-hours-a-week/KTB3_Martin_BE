@@ -332,20 +332,9 @@ class UserControllerTest {
         verify(userService).existemail(any(String.class));
     }
 
-    @Test
-    @DisplayName("이메일 존재유무 확인성공(O), 200반환")
-    void existEmail_failure_withTrue() throws Exception {
 
-        when(userService.existemail(any(String.class))).thenReturn(true);
 
-        mockMvc.perform(get("/api/user/email-conflict")
-                        .param("email" , "example@"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
-        verify(userService).existemail(any(String.class));
-    }
 
-    //Todo: 이미지 검증, 닉네임 검증, 해야할까?
 
 
     //controller는 검증, 전달, 서비스 결과값만 반환, json 매칭

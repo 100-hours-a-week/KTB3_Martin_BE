@@ -23,7 +23,7 @@ public class LikeApiController {
 
     private final LikeService likeService;
 
-//    private final SessionManager sessionManager;
+
 
     @Autowired
     public LikeApiController(LikeService likeService, PostService postService){
@@ -35,7 +35,7 @@ public class LikeApiController {
     public ResponseEntity<?> getLikes(
             @PathVariable Long postid, @RequestParam(value = "user", required = false) String email,
             HttpServletRequest request) {
-//        sessionManager.access2Resource(request);
+
 
 
         if(email ==null) {
@@ -49,8 +49,7 @@ public class LikeApiController {
 
     @PostMapping("/{postId}")
     public ResponseEntity<?> saveLike(@PathVariable Long postId, Authentication authentication) {
-//        sessionManager.access2Auth(request);
-//        UserDto user = (UserDto) request.getSession().getAttribute("user");
+
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         UserDto user =  customUserDetails.getUser();
 
