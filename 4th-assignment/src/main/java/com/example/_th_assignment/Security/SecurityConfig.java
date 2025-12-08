@@ -6,6 +6,7 @@ import com.example._th_assignment.Security.Handler.LoginFailureHandler;
 import com.example._th_assignment.Security.Handler.LoginSuccessHandler;
 import com.example._th_assignment.Service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -44,6 +45,15 @@ public class SecurityConfig {
     private final LogoutSuccessHandler logoutSuccessHandler;
 
 
+    //대체 가능하지만 권장되지 않는 방식
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return (web) -> web.ignoring()
+//                .requestMatchers(PathRequest.toH2Console())
+//                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+//    }
+
+
 
 
     @Bean
@@ -61,6 +71,8 @@ public class SecurityConfig {
 
         http
 //                테스트시에는 off 실제 기동시에는 on ignoringReqeustMatchers
+//                .csrf(csrf ->
+//                        csrf.ignoringRequestMatchers("/h2-console/**", "/api/user/**"))
                 .csrf(csrf -> csrf.disable())
                 .formLogin(formLogin -> formLogin.disable())
                 .httpBasic(basicAuth -> basicAuth.disable())
@@ -77,6 +89,8 @@ public class SecurityConfig {
 
 
 
+
+
                 .logout(logout ->
 
                         //알아보기
@@ -88,6 +102,9 @@ public class SecurityConfig {
                                 .invalidateHttpSession(true))
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/h2-console/**").permitAll()
+
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user/session").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user/email-conflict").permitAll()

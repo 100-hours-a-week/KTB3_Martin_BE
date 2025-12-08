@@ -4,13 +4,11 @@ import com.example._th_assignment.ApiResponse.ApiResponse;
 import com.example._th_assignment.Dto.CommentDto;
 import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Security.CustomUserDetails;
-import com.example._th_assignment.Service.AuthorizationManager;
 import com.example._th_assignment.Service.CommentService;
 import com.example._th_assignment.Service.PostService;
-import com.example._th_assignment.Service.SessionManager;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.*;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 
 import java.net.URI;
 import java.util.List;
@@ -32,16 +29,15 @@ import java.util.Map;
 public class CommentApiController {
     private final CommentService commentService;
     private final PostService postService;
-    private final SessionManager sessionManager;
-    private final AuthorizationManager authorizationManager;
+
+
 
     @Autowired
-    public CommentApiController(CommentService commentService, PostService postService,
-                                SessionManager sessionManager, AuthorizationManager authorizationManager) {
+    public CommentApiController(CommentService commentService, PostService postService) {
         this.commentService = commentService;
         this.postService = postService;
-        this.sessionManager = sessionManager;
-        this.authorizationManager = authorizationManager;
+
+
     }
 
     @GetMapping("/{postid}")
@@ -64,7 +60,7 @@ public class CommentApiController {
     @GetMapping("/{postid}/{id}")
     public ResponseEntity<Object> getComment(@PathVariable Long postid,
                                                  @PathVariable Long id, HttpServletRequest request){
-        sessionManager.access2Resource(request);
+//        sessionManager.access2Resource(request);
         postService.findPostById(postid);
         CommentDto comment = commentService.getByPostIdAndCommentId(postid, id);
 
@@ -102,6 +98,7 @@ public class CommentApiController {
     public ResponseEntity<Object>  updateComment(
             @PathVariable Long postid, @PathVariable Long id,
             @Valid @RequestBody CommentDto comment, HttpServletRequest request){
+
 //        sessionManager.access2Resource(request);
 //        String writerEmail =commentService.getByPostIdAndCommentId(postid, id).getAuthorEmail();
 //        authorizationManager.checkAuth(request,writerEmail);

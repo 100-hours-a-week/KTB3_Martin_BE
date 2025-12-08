@@ -3,6 +3,8 @@ package com.example._th_assignment.Dto;
 import com.example._th_assignment.Dto.Request.RequestUserDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
+
 
 public class UserDto {
     private String nickname;
@@ -33,7 +35,7 @@ public class UserDto {
         }
     }
 
-
+    @Builder
     public UserDto( String nickname, String email, String password, String image) {
 
         this.nickname = nickname;

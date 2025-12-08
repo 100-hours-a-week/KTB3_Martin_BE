@@ -12,7 +12,7 @@ import com.example._th_assignment.JpaRepository.CommentJpaRepository;
 import com.example._th_assignment.JpaRepository.PostJpaRepository;
 import com.example._th_assignment.JpaRepository.UserJpaRepository;
 import com.example._th_assignment.Service.Mapper.CommentMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
 
 
@@ -27,16 +28,9 @@ public class CommentService {
     private final UserJpaRepository userJpaRepository;
     private final PostJpaRepository postJpaRepository;
     private final CommentJpaRepository commentJpaRepository;
+    private final CommentMapper commentMapper;
 
-    @Autowired
-    public CommentService(
-                          UserJpaRepository userJpaRepository,
-                          PostJpaRepository postJpaRepository,
-                          CommentJpaRepository commentJpaRepository) {
-        this.userJpaRepository = userJpaRepository;
-        this.postJpaRepository = postJpaRepository;
-        this.commentJpaRepository = commentJpaRepository;
-    }
+
     public Comment findByPostIdAndId(Long postId, Long commentId) {
         Comment comment = commentJpaRepository.findByPost_IdAndIdAndIsdeletedFalse(postId, commentId)
                 .orElseThrow(() -> new CommentNotFoundException(postId, commentId));
@@ -62,7 +56,7 @@ public class CommentService {
     }
     @Transactional
     public CommentDto saveComment(long postId, CommentDto commentDto, UserDto userDto) {
-        CommentDto newComment = CommentMapper.apply2Comment(commentDto, userDto);
+        CommentDto newComment = commentMapper.apply2Comment(commentDto, userDto);
         String email = newComment.getAuthorEmail();
 
         User user = userJpaRepository.findByEmailAndIsdeletedFalse(email)

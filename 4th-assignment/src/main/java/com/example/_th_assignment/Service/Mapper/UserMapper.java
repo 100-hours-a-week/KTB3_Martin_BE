@@ -6,8 +6,9 @@ import com.example._th_assignment.Dto.UserDto;
 import org.springframework.stereotype.Component;
 
 
+@Component
 public class UserMapper {
-    public static UserDto apply2UserForUpdate(RequestUserDto requestUserDto, UserDto user){
+    public UserDto apply2UserForUpdate(RequestUserDto requestUserDto, UserDto user){
         String nickname = requestUserDto.getNickname();
         String email = user.getEmail();
         String password = user.getPassword();
@@ -15,7 +16,7 @@ public class UserMapper {
         return new UserDto(nickname, email, password, image);
     }
 
-    public static UserDto apply2User(RequestUserDto requestUserDto) {
+    public UserDto apply2User(RequestUserDto requestUserDto) {
         return new UserDto(requestUserDto);
     }
 

@@ -7,7 +7,6 @@ import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Security.CustomUserDetails;
 import com.example._th_assignment.Service.LikeService;
 import com.example._th_assignment.Service.PostService;
-import com.example._th_assignment.Service.SessionManager;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,19 +23,19 @@ public class LikeApiController {
 
     private final LikeService likeService;
 
-    private final SessionManager sessionManager;
+//    private final SessionManager sessionManager;
 
     @Autowired
-    public LikeApiController(LikeService likeService, PostService postService, SessionManager sessionManager) {
+    public LikeApiController(LikeService likeService, PostService postService){
         this.likeService = likeService;
-        this.sessionManager = sessionManager;
+
     }
 
     @GetMapping("/{postid}")
     public ResponseEntity<?> getLikes(
             @PathVariable Long postid, @RequestParam(value = "user", required = false) String email,
             HttpServletRequest request) {
-        sessionManager.access2Resource(request);
+//        sessionManager.access2Resource(request);
 
 
         if(email ==null) {
@@ -65,8 +64,7 @@ public class LikeApiController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Map<String, Object>> deleteLike(@PathVariable Long postId, Authentication authentication) {
-//        sessionManager.access2Resource(request);
-//        UserDto user = (UserDto) request.getSession().getAttribute("user");
+
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         UserDto user =  customUserDetails.getUser();
@@ -79,8 +77,7 @@ public class LikeApiController {
 
     @GetMapping("/mylike/{postId}")
     public ResponseEntity<?> getLikes(@PathVariable Long postId, Authentication authentication) {
-//        sessionManager.access2Resource(request);
-//        UserDto user = (UserDto) request.getSession().getAttribute("user");
+
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         UserDto user =  customUserDetails.getUser();
 

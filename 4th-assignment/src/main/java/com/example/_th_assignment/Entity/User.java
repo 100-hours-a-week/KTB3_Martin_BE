@@ -80,6 +80,7 @@ public class User {
         this.nickname = "Unknown";
         this.email = "deleted_"+ UUID.randomUUID()+"@example.com";
         this.isdeleted=true;
+        this.image_path = "";
 
     }
 

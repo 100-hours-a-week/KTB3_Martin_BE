@@ -21,6 +21,11 @@ public class Validator {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nickname cannot be unknown");
     }
 
+    public void checkSignUpUser(RequestUserDto user){
+        checkValidNickname(user);
+        checkValidPassword(user);
+    }
+
 
 }
 

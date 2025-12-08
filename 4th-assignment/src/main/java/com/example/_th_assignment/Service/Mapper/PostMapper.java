@@ -5,19 +5,21 @@ import com.example._th_assignment.Dto.PostDto;
 import com.example._th_assignment.Dto.Request.RequestPostDto;
 import com.example._th_assignment.Dto.Response.ResponsePostAndCommentsDto;
 import com.example._th_assignment.Dto.Response.ResponsePostDto;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class PostMapper {
-    public static ResponsePostDto apply2ResponsePostDto(PostDto postDto, long commentnum, long likenum) {
+    public ResponsePostDto apply2ResponsePostDto(PostDto postDto, long commentnum, long likenum) {
         return new ResponsePostDto(postDto, commentnum, likenum);
     }
 
-    public static ResponsePostAndCommentsDto apply2ResponsePostAndCommentsDto(ResponsePostDto responsepost, List<CommentDto> comments) {
+    public ResponsePostAndCommentsDto apply2ResponsePostAndCommentsDto(ResponsePostDto responsepost, List<CommentDto> comments) {
         return new ResponsePostAndCommentsDto(responsepost, comments);
     }
 
-    public static PostDto apply2PostDto(RequestPostDto requestPostDto, PostDto postDto) {
+    public PostDto apply2PostDto(RequestPostDto requestPostDto, PostDto postDto) {
         Long id = postDto.getId();
         String email = postDto.getAuthorEmail();
         String title = requestPostDto.getTitle();

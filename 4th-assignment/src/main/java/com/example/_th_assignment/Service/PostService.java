@@ -34,6 +34,7 @@ public class PostService {
     private final CommentService commentService;
     private final LikeService likeService;
     private final FileStorageService fileStorageService;
+    private final PostMapper postMapper;
 
 
     public Post findPostById(long id) {
@@ -60,10 +61,10 @@ public class PostService {
 
         long commentsnum = commentService.countByPostId((post.getId()));
         long likesnum = likeService.countByPostId((post.getId()));
-        ResponsePostDto responsePost = PostMapper.apply2ResponsePostDto(postDto, commentsnum, likesnum);
+        ResponsePostDto responsePost = postMapper.apply2ResponsePostDto(postDto, commentsnum, likesnum);
         List<CommentDto> comments = commentService.getByPostId(id);
 
-        return PostMapper.apply2ResponsePostAndCommentsDto(responsePost, comments);
+        return postMapper.apply2ResponsePostAndCommentsDto(responsePost, comments);
 
     }
 
@@ -99,7 +100,7 @@ public class PostService {
         for (PostDto postDto : postdtos) {
             long commentnum = commentGroup.getOrDefault(postDto.getId(), 0L);
             long likenum = likeGroup.getOrDefault(postDto.getId(), 0L);
-            responsePosts.add(PostMapper.apply2ResponsePostDto(postDto, commentnum, likenum));
+            responsePosts.add(postMapper.apply2ResponsePostDto(postDto, commentnum, likenum));
         }
 
         return responsePosts;
@@ -108,7 +109,7 @@ public class PostService {
     @Transactional()
     public PostDto postPostDto(RequestPostDto request, UserDto userDto) {
         PostDto postDto = new PostDto(userDto.getEmail(), userDto.getNickname());
-        PostDto post = PostMapper.apply2PostDto(request, postDto);
+        PostDto post = postMapper.apply2PostDto(request, postDto);
 
         return savePost(post);
     }
@@ -141,7 +142,7 @@ public class PostService {
 
         Post post = findPostById(id);
         PostDto postDto = post.toDto();
-        postDto = PostMapper.apply2PostDto(request, postDto);
+        postDto = postMapper.apply2PostDto(request, postDto);
         if(!postDto.getImage().equals(request.getImage())) {
             if(request.getImage() != null) {
                 fileStorageService.deleteImage(postDto.getImage());
