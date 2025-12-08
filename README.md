@@ -1,6 +1,6 @@
 #  별 헤는밤
 
-#Back-end 소개
+## Back-end 소개
 - 일상에 지친 사람들이 모여서 얘기하는 커뮤니티 프로젝트입니다
 - spring boot를 사용해서 api를 구현했습니다
 - 세션을 통해 로그인을 구현했습니다.
@@ -35,32 +35,6 @@
 - **테스트:** JUnit5, MockMvc
 - **Other:** Swagger 
 
----
-
-## 개발 기간
- - 2025.10.12 ~ 2025.12.11
-
----
-
-##  기능
-- 회원가입 / 로그인 / 로그아웃
-- 사용자 정보 조회 및 수정
-- 게시글 CRUD
-- 댓글 CRUD
-- 좋아요 추가 / 취소
-- 세션 기반 인증 (Spring Security)
-- 글로벌 예외 처리 및 응답 포맷 통일
-
----
-
-##  기술 스택
-- **언어:** Java 21
-- **프레임워크:** Spring Boot 3.5.x
-- **DB:** H2
-- **ORM:** JPA / Hibernate
-- **인증/인가:** Spring Security (세션 기반)
-- **테스트:** JUnit5, MockMvc
-- **Other:** Swagger 
 
 ---
 ## ERD
