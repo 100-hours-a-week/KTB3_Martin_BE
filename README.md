@@ -32,7 +32,7 @@
 - **DB:** H2
 - **ORM:** JPA / Hibernate
 - **인증/인가:** Spring Security (세션 기반)
-- **테스트:** JUnit5, MockMvc
+- **테스트:** JUnit5, Mockito
 - **Other:** Swagger 
 
 
