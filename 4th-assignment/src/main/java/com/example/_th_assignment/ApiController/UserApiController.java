@@ -1,52 +1,39 @@
 package com.example._th_assignment.ApiController;
 
 import com.example._th_assignment.ApiResponse.ApiResponse;
+import com.example._th_assignment.CustomAnnotation.LoginUser;
 import com.example._th_assignment.Dto.Request.RequestUserDto;
 import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Dto.ValidationGroup;
 import com.example._th_assignment.Security.CustomUserDetails;
+import com.example._th_assignment.Service.AuthenticationProcessor;
 import com.example._th_assignment.Service.FileStorageService;
-import com.example._th_assignment.Service.SessionManager;
 import com.example._th_assignment.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.servlet.http.HttpServletRequest;
-
-
-import org.springframework.http.HttpStatus;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
+@RequiredArgsConstructor
 public class UserApiController {
 
     private final UserService userService;
+    private final AuthenticationProcessor authenticationProcessor;
 
     private final FileStorageService fileStorageService;
-    private final String USER = "user";
-
-    @Autowired
-    public UserApiController (UserService userService,
-                              FileStorageService fileStorageService) {
-        this.userService = userService;
-        this.fileStorageService = fileStorageService;
-
-    }
 
 
+    //Todo: authentication에서 뽑아내는 반복 로직 -> @LoginUser UserDto로 전환
 
     @PostMapping
     @Operation(summary = "회원 가입", description = "같은 이메일이 없다면 회원가입 가능")
@@ -63,9 +50,9 @@ public class UserApiController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getUserProperty(Authentication authentication) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user = customUserDetails.getUser();
+    public ResponseEntity<Object> getUserProperty(@LoginUser UserDto user) {
+//        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+//        UserDto user = customUserDetails.getUser();
         return ResponseEntity.ok(ApiResponse.success("user found", user));
 
     }
@@ -78,13 +65,7 @@ public class UserApiController {
         UserDto user = customUserDetails.getUser();
 
         user = userService.updateUser(newuser,user);
-        CustomUserDetails newDetails = new CustomUserDetails(user);
-        Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
-                newDetails,
-                null,
-                newDetails.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+        authenticationProcessor.updateContext(user);
 
         return ResponseEntity.ok(ApiResponse.success("update success", user));
 
@@ -99,13 +80,7 @@ public class UserApiController {
         UserDto user = customUserDetails.getUser();
 
         user = userService.updateUserPassword(newuser,user);
-        CustomUserDetails newDetails = new CustomUserDetails(user);
-        Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
-                newDetails,
-                null,
-                newDetails.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+
 
 
         return ResponseEntity.ok().body(ApiResponse.success("password updated", user));
@@ -121,19 +96,7 @@ public class UserApiController {
 
 
         userService.deleteUser(user);
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-
-        SecurityContextHolder.clearContext();
-
-
-        Cookie cookie = new Cookie("JSESSIONID", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        response.addCookie(cookie);
+        authenticationProcessor.logout();
 
         return ResponseEntity.noContent().build();
 

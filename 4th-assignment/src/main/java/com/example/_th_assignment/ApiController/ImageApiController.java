@@ -2,9 +2,8 @@ package com.example._th_assignment.ApiController;
 
 
 import com.example._th_assignment.ApiResponse.ApiResponse;
-import com.example._th_assignment.CustomException.UserUnAuthorizedException;
 import com.example._th_assignment.Dto.UserDto;
-import com.example._th_assignment.ImageType.ImageType;
+import com.example._th_assignment.ApiController.ImageType.ImageType;
 import com.example._th_assignment.Service.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

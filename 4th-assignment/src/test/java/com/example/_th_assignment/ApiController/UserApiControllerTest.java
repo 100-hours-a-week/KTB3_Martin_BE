@@ -3,6 +3,7 @@ package com.example._th_assignment.ApiController;
 import com.example._th_assignment.Dto.Request.RequestUserDto;
 import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Security.CustomUserDetails;
+import com.example._th_assignment.Service.AuthenticationProcessor;
 import com.example._th_assignment.Service.FileStorageService;
 import com.example._th_assignment.Service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -27,6 +29,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
+
+//Todo: SecurityContextHolder에 Authentication 저장하기
+//다만 이부분이 반복되기에 setup을 할까 고민중
+//메소드화?
 @WebMvcTest(UserApiController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
@@ -40,8 +46,19 @@ class UserControllerTest {
     @MockitoBean
     private FileStorageService fileStorageService;
 
+    @MockitoBean
+    private AuthenticationProcessor authenticationProcessor;
+
     @Autowired
     private ObjectMapper objectMapper;
+
+
+//    @BeforeEach
+//    void setUp() {
+//        mockMvc = MockMvcBuilders.standaloneSetup(userApiController)
+//                .setCustomArgumentResolvers(new LoginArgumentResolver())
+//                .build();
+//    }
 
     @Test
     @DisplayName("회원가입 성공, 200_반환")
@@ -125,14 +142,12 @@ class UserControllerTest {
                         userDetails.getAuthorities()
                 );
 
-
-
-
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
 
 
         //when + then
-        mockMvc.perform(get("/api/user").principal(auth))
+        mockMvc.perform(get("/api/user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("user found"))
                 .andExpect(jsonPath("$.data.nickname").value(userProperty.getNickname()))

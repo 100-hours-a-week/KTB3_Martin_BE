@@ -1,4 +1,4 @@
-package com.example._th_assignment.ImageType;
+package com.example._th_assignment.ApiController.ImageType;
 
 public enum ImageType {
     POSTS,

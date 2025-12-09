@@ -1,4 +1,4 @@
-package com.example._th_assignment.ControllerAdvice;
+package com.example._th_assignment.GlobalExceptionHandler;
 
 
 import com.example._th_assignment.ApiResponse.ApiResponse;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestControllerAdvice(annotations = RestController.class)
 public class GlobalApiExceptionHandler {
