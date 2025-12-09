@@ -5,17 +5,13 @@ import com.example._th_assignment.CustomAnnotation.LoginUser;
 import com.example._th_assignment.Dto.Request.RequestUserDto;
 import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Dto.ValidationGroup;
-import com.example._th_assignment.Security.CustomUserDetails;
 import com.example._th_assignment.Service.AuthenticationProcessor;
 import com.example._th_assignment.Service.FileStorageService;
 import com.example._th_assignment.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,9 +56,8 @@ public class UserApiController {
     @PutMapping
     public ResponseEntity<Object> updateUser(
             @Validated(ValidationGroup.UpdateProperty.class ) @RequestBody RequestUserDto newuser,
-            Authentication authentication) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user = customUserDetails.getUser();
+            @LoginUser UserDto user) {
+
 
         user = userService.updateUser(newuser,user);
         authenticationProcessor.updateContext(user);
@@ -74,25 +69,16 @@ public class UserApiController {
     @PutMapping("/password")
     public ResponseEntity<?> updateUserPassword(
             @Validated(ValidationGroup.UpdatePassword.class) @RequestBody RequestUserDto newuser,
-            Authentication authentication
-    ){
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user = customUserDetails.getUser();
+            @LoginUser UserDto user){
 
         user = userService.updateUserPassword(newuser,user);
-
-
 
         return ResponseEntity.ok().body(ApiResponse.success("password updated", user));
 
     }
 
     @DeleteMapping
-    public ResponseEntity<Map<String, Object>> deleteUser(Authentication authentication,
-                                                          HttpServletRequest request,
-                                                          HttpServletResponse response) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user = customUserDetails.getUser();
+    public ResponseEntity<Map<String, Object>> deleteUser(@LoginUser UserDto user) {
 
 
         userService.deleteUser(user);

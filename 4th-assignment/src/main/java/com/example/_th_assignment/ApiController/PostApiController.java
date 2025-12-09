@@ -1,27 +1,26 @@
 package com.example._th_assignment.ApiController;
 
 import com.example._th_assignment.ApiResponse.ApiResponse;
-import com.example._th_assignment.Dto.*;
+import com.example._th_assignment.CustomAnnotation.LoginUser;
+import com.example._th_assignment.Dto.JsonViewGroup;
+import com.example._th_assignment.Dto.PostDto;
 import com.example._th_assignment.Dto.Request.RequestPostDto;
 import com.example._th_assignment.Dto.Response.ResponsePostAndCommentsDto;
 import com.example._th_assignment.Dto.Response.ResponsePostDto;
+import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Security.Authorization.PostAuthorization;
-import com.example._th_assignment.Security.CustomUserDetails;
 import com.example._th_assignment.Service.*;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -70,8 +69,7 @@ public class PostApiController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getPost(@PathVariable long id, HttpServletRequest request) {
-        sessionManager.access2Resource(request);
+    public ResponseEntity<Object> getPost(@PathVariable long id) {
 
 
 
@@ -83,14 +81,7 @@ public class PostApiController {
 
     @PostMapping
     public ResponseEntity<Object> postPost(
-            @Valid @RequestBody RequestPostDto requestPostDto, Authentication authentication){
-//        HttpSession session = sessionManager.access2Auth(request);
-//        UserDto user = (UserDto) session.getAttribute("user");
-
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user = customUserDetails.getUser();
-
-
+            @Valid @RequestBody RequestPostDto requestPostDto, @LoginUser UserDto user){
 
 
         PostDto post = postService.postPostDto(requestPostDto, user);
@@ -109,13 +100,10 @@ public class PostApiController {
     @PreAuthorize("@postAuth.isOwner(#id, authentication)")
     @PutMapping("/{id}")
     public ResponseEntity<Object> putPost(@PathVariable long id,
-            @Valid @RequestBody RequestPostDto requestPostDto, HttpServletRequest request){
+            @Valid @RequestBody RequestPostDto requestPostDto){
 
 
-//        sessionManager.access2Resource(request);
-//        PostDto post = postService.getPostById(id);
-//        String writerEmail = post.getAuthorEmail();
-//        authorizationManager.checkAuth(request,writerEmail);
+
 
 
         PostDto post = postService.updatePost(id, requestPostDto);
@@ -126,11 +114,8 @@ public class PostApiController {
 
     @PreAuthorize("@postAuth.isOwner(#id, authentication)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deletePost(@PathVariable long id, HttpServletRequest request){
-//        sessionManager.access2Resource(request);
-//        PostDto post = postService.getPostById(id);
-//        String writerEmail = post.getAuthorEmail();
-//        authorizationManager.checkAuth(request,writerEmail);
+    public ResponseEntity<Object> deletePost(@PathVariable long id){
+
 
         postService.deletePost(id);
 

@@ -60,6 +60,9 @@ class UserControllerTest {
 //                .build();
 //    }
 
+
+
+
     @Test
     @DisplayName("회원가입 성공, 200_반환")
     void register_Success() throws Exception {
@@ -89,7 +92,6 @@ class UserControllerTest {
 
         //then
         resultActions
-
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("register success"))
                 .andExpect(jsonPath("$.data.nickname").value("닉네임"))

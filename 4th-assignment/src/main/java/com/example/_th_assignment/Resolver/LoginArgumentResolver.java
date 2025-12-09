@@ -25,7 +25,7 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter parameter,
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
-                                  WebDataBinderFactory binderFactory) throws Exception {
+                                  WebDataBinderFactory binderFactory){
 
 
 
@@ -36,7 +36,7 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
 
         Object principal = authentication.getPrincipal();
         if(principal == null){
-            throw new RuntimeException("principal is null");
+            throw new RuntimeException("Principal is null");
         }
 
         CustomUserDetails customUserDetails = (CustomUserDetails) principal;

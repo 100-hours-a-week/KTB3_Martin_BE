@@ -1,21 +1,19 @@
 package com.example._th_assignment.ApiController;
 
 import com.example._th_assignment.ApiResponse.ApiResponse;
+import com.example._th_assignment.CustomAnnotation.LoginUser;
 import com.example._th_assignment.Dto.CommentDto;
 import com.example._th_assignment.Dto.UserDto;
-import com.example._th_assignment.Security.CustomUserDetails;
 import com.example._th_assignment.Service.CommentService;
 import com.example._th_assignment.Service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -48,8 +46,8 @@ public class CommentApiController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "로그인 필요함")
     })
     public ResponseEntity<Object> getComments(@Parameter(description = "조회할 게시글 id", required = true, example = "1")
-                                                  @PathVariable Long postid, HttpServletRequest request){
-//        sessionManager.access2Resource(request);
+                                                  @PathVariable Long postid){
+
 
         List<CommentDto> list = commentService.getByPostId(postid);
 
@@ -59,8 +57,8 @@ public class CommentApiController {
 
     @GetMapping("/{postid}/{id}")
     public ResponseEntity<Object> getComment(@PathVariable Long postid,
-                                                 @PathVariable Long id, HttpServletRequest request){
-//        sessionManager.access2Resource(request);
+                                                 @PathVariable Long id){
+
         postService.findPostById(postid);
         CommentDto comment = commentService.getByPostIdAndCommentId(postid, id);
 
@@ -69,13 +67,7 @@ public class CommentApiController {
 
     @PostMapping("/{postid}")
     public ResponseEntity<Object>  postComment(
-            @PathVariable Long postid, @Valid @RequestBody CommentDto comment, Authentication authentication){
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user =  customUserDetails.getUser();
-
-//        sessionManager.access2Auth(request);
-//        UserDto user = (UserDto) request.getSession().getAttribute("user");
-
+            @PathVariable Long postid, @Valid @RequestBody CommentDto comment, @LoginUser UserDto user){
 
 
         CommentDto newcomment = commentService.saveComment(postid, comment, user);
@@ -97,11 +89,7 @@ public class CommentApiController {
     @PutMapping("/{postid}/{id}")
     public ResponseEntity<Object>  updateComment(
             @PathVariable Long postid, @PathVariable Long id,
-            @Valid @RequestBody CommentDto comment, HttpServletRequest request){
-
-//        sessionManager.access2Resource(request);
-//        String writerEmail =commentService.getByPostIdAndCommentId(postid, id).getAuthorEmail();
-//        authorizationManager.checkAuth(request,writerEmail);
+            @Valid @RequestBody CommentDto comment){
 
 
         CommentDto newcomment =  commentService.updateComment(postid,id, comment);
@@ -112,10 +100,7 @@ public class CommentApiController {
     @PreAuthorize("@commentAuth.isOwner(#postid, #id, authentication)")
     @DeleteMapping("/{postid}/{id}")
     public ResponseEntity<Map<String, Object>>  deleteComment(
-            @PathVariable Long postid, @PathVariable Long id, HttpServletRequest request){
-//        sessionManager.access2Resource(request);
-//        String writerEmail = commentService.getByPostIdAndCommentId(postid, id).getAuthorEmail();
-//        authorizationManager.checkAuth(request,writerEmail);
+            @PathVariable Long postid, @PathVariable Long id){
 
         commentService.deleteComment(postid, id);
 

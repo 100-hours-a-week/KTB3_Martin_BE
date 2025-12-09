@@ -2,15 +2,13 @@ package com.example._th_assignment.ApiController;
 
 
 import com.example._th_assignment.ApiResponse.ApiResponse;
+import com.example._th_assignment.CustomAnnotation.LoginUser;
 import com.example._th_assignment.Dto.LikeDto;
 import com.example._th_assignment.Dto.UserDto;
-import com.example._th_assignment.Security.CustomUserDetails;
 import com.example._th_assignment.Service.LikeService;
 import com.example._th_assignment.Service.PostService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -33,8 +31,7 @@ public class LikeApiController {
 
     @GetMapping("/{postid}")
     public ResponseEntity<?> getLikes(
-            @PathVariable Long postid, @RequestParam(value = "user", required = false) String email,
-            HttpServletRequest request) {
+            @PathVariable Long postid, @RequestParam(value = "user", required = false) String email) {
 
 
 
@@ -48,12 +45,7 @@ public class LikeApiController {
     }
 
     @PostMapping("/{postId}")
-    public ResponseEntity<?> saveLike(@PathVariable Long postId, Authentication authentication) {
-
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user =  customUserDetails.getUser();
-
-
+    public ResponseEntity<?> saveLike(@PathVariable Long postId, @LoginUser UserDto user) {
 
 
         LikeDto like = likeService.saveLike(postId, user);
@@ -62,11 +54,9 @@ public class LikeApiController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Map<String, Object>> deleteLike(@PathVariable Long postId, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> deleteLike(@PathVariable Long postId, @LoginUser UserDto user) {
 
 
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user =  customUserDetails.getUser();
 
 
         likeService.deleteLike(postId,user.getEmail());
@@ -75,16 +65,10 @@ public class LikeApiController {
     }
 
     @GetMapping("/mylike/{postId}")
-    public ResponseEntity<?> getLikes(@PathVariable Long postId, Authentication authentication) {
-
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserDto user =  customUserDetails.getUser();
-
+    public ResponseEntity<?> getLikes(@PathVariable Long postId, @LoginUser UserDto user) {
 
         String email = user.getEmail();
-
         boolean exist = likeService.existlike(postId, email);
-
         return ResponseEntity.ok(exist);
 
     }
