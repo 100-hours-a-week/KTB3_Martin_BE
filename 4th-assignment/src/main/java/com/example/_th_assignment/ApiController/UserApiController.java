@@ -108,7 +108,6 @@ public class UserApiController {
             return ResponseEntity.badRequest().body(Map.of("error", "empty file"));
         }
 
-
         String url = fileStorageService.saveImage(image, "profile");
 
         return ResponseEntity.ok(Map.of("url", url));

@@ -13,17 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -236,7 +238,7 @@ class UserControllerTest {
 
 
     @Test
-    @DisplayName("이메일 존재유무 확인성공(O), 200반환")
+    @DisplayName("이메일 존재유무 확인성공 with true, 200반환")
     void existEmail_success_withTrue() throws Exception {
 
 
@@ -245,30 +247,93 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/user/email-conflict")
                 .param("email" , "example@"))
+
                 .andExpect(status().isOk())
                 .andExpect(content().string("true"));
         verify(userService).existemail(any(String.class));
     }
 
+
     @Test
-    @DisplayName("이메일 존재유무 확인성공(X), 200반환")
-    void existEmail_success_withFalse() throws Exception {
+    @DisplayName("닉네임 존재유무 확인")
+    void existNickname_success() throws Exception {
+        when(userService.existnickname(any(String.class))).thenReturn(true);
 
+        mockMvc.perform(get("/api/user/nickname-conflict")
+                .param("nickname" , "example"))
 
-        when(userService.existemail(any(String.class))).thenReturn(false);
-
-
-        mockMvc.perform(get("/api/user/email-conflict")
-                        .param("email" , "example@"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("false"));
-        verify(userService).existemail(any(String.class));
+                .andExpect(content().string("true"));
+
+        verify(userService).existnickname(any(String.class));
     }
+
+    @Test
+    @DisplayName("이미지 업로드 성공")
+    void uploadProfile_success() throws Exception {
+
+        MockMultipartFile image =
+                new MockMultipartFile(
+                        "image",                 // 파라미터 이름 (컨트롤러에서 받는 이름)
+                        "test.png",              // 파일 이름
+                        "image/png",             // Content-Type
+                        "dummy image content".getBytes()  // 바이트 데이터
+                );
+
+        when(fileStorageService.saveImage(any(MultipartFile.class), eq("profile")))
+                .thenReturn("url");
+
+
+
+        mockMvc.perform(multipart("/api/user/profile")
+                        .file(image))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.url").value("url"));
+    }
+
+
+    @Test
+    @DisplayName("이미지 업로드 실패 이미지 파일 없음")
+    void uploadProfile_Failure_emptyfile() throws Exception {
+
+        MockMultipartFile emptyImage = new MockMultipartFile(
+                "image",            // 컨트롤러 파라미터 이름과 동일해야 함
+                "empty.png",        // 파일 이름
+                "image/png",        // MIME 타입
+                new byte[0]         // **0바이트 → isEmpty() == true**
+        );
+
+
+        when(fileStorageService.saveImage(any(MultipartFile.class), eq("profile")))
+                .thenThrow(ResponseStatusException.class);
+
+
+
+        mockMvc.perform(multipart("/api/user/profile")
+                        .file(emptyImage))
+                .andExpect(status().isBadRequest());
+
+
+        verify(fileStorageService, never()).saveImage(any(MultipartFile.class), eq("profile"));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     //헬퍼메서드
 
-    RequestUserDto createRequestUser(String nickname){
+    private RequestUserDto createRequestUser(String nickname){
         RequestUserDto requestUser = RequestUserDto.builder()
                 .nickname(nickname)
                 .email("e@example.com")
@@ -280,7 +345,7 @@ class UserControllerTest {
         return requestUser;
     }
 
-    RequestUserDto createRequestForPasswordUpdate(String password){
+    private RequestUserDto createRequestForPasswordUpdate(String password){
 
         return RequestUserDto.builder()
                 .nickname("nickname")
@@ -290,7 +355,7 @@ class UserControllerTest {
                 .image("image")
                 .build();
     }
-    RequestUserDto createRequestForPasswordUpdate(String password, String checkingpassword){
+    private RequestUserDto createRequestForPasswordUpdate(String password, String checkingpassword){
 
         return RequestUserDto.builder()
                 .nickname("nickname")
@@ -301,7 +366,7 @@ class UserControllerTest {
                 .build();
     }
 
-    UserDto createUser(String nickname) {
+    private UserDto createUser(String nickname) {
         UserDto oldUserProperty = new UserDto(nickname,
                 "exam@example.com222",
                 "Mypassword1!",
@@ -310,7 +375,7 @@ class UserControllerTest {
 
     }
 
-    void createAuth(UserDto user){
+    private void createAuth(UserDto user){
         CustomUserDetails userDetails = new CustomUserDetails(user);
         Authentication auth =
                 new UsernamePasswordAuthenticationToken(
