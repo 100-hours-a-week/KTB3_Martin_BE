@@ -49,7 +49,8 @@
   - 처음에 provider에 있는 필드가 문제인가 싶어 전부 주석처리뒤에 실행
     - 그럼에도 순환참조 발생
   - Config와 provider가 의존성이 연관된 것을 확인
-    - provider의 생성자가 config를 의존하는 것을 알게됨
+  - config -> Manager -> provider 순서
+  - 그렇기에 만약 의존성을 주입하게 되면 config -> manager -> provider -> config 순으로 발생
   - 해결 방안
     - @Lazy를 쓸까도 싶었지만 이건 본질적인 해결법이 아닌것 같아 보류
     - 메서드에 인자로 두어 spring container가 주입하게 함
