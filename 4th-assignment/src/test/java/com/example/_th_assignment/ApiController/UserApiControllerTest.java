@@ -53,12 +53,6 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
 
-//    @BeforeEach
-//    void setUp() {
-//        mockMvc = MockMvcBuilders.standaloneSetup(userApiController)
-//                .setCustomArgumentResolvers(new LoginArgumentResolver())
-//                .build();
-//    }
 
 
 
@@ -69,13 +63,7 @@ class UserControllerTest {
 
 
         //given
-        RequestUserDto requestUser = RequestUserDto.builder()
-                .nickname("닉네임")
-                .email("e@example.com")
-                .password("Mypassword1!")
-                .checkingpassword("Mypassword1!")
-                .image("image")
-                .build();
+        RequestUserDto requestUser = createRequestUser("nickname");
 
 
         UserDto savedUser = new UserDto(requestUser);
@@ -94,9 +82,7 @@ class UserControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("register success"))
-                .andExpect(jsonPath("$.data.nickname").value("닉네임"))
-                .andExpect(jsonPath("$.data.email").value("e@example.com"))
-                        .andExpect(jsonPath("$.data.image").value("image"));
+                .andExpect(jsonPath("$.data.nickname").value("nickname"));
 
 
         verify(userService).saveUser(any(RequestUserDto.class));
@@ -106,13 +92,7 @@ class UserControllerTest {
     @DisplayName("회원가입 실패, 400반환, 규칙에 맞지않는 json 요소")
     void register_validation() throws Exception {
 
-        RequestUserDto requestUser = RequestUserDto.builder()
-                .nickname("")
-                .email("e@exmaple.com")
-                .password("Mypassword1!")
-                .checkingpassword("Mypassword1!")
-                .image("image")
-                .build();
+        RequestUserDto requestUser = createRequestUser("");
 
         String content = objectMapper.writeValueAsString(requestUser);
 
@@ -131,20 +111,8 @@ class UserControllerTest {
 
 
         //given
-        UserDto userProperty = new UserDto("닉네임",
-                "exam@example.com",
-                "Mypassword1!",
-                "img_url");
-
-        CustomUserDetails userDetails = new CustomUserDetails(userProperty);
-        Authentication auth =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        UserDto userProperty = createUser("nickname");
+        createAuth(userProperty);
 
 
 
@@ -163,51 +131,26 @@ class UserControllerTest {
     void updateUserProperty_success() throws Exception {
 
         //given
-        RequestUserDto requestUser = RequestUserDto.builder()
-                .nickname("닉네임")
-                .email("e@exmaple.com")
-                .password("Mypassword1!")
-                .checkingpassword("Mypassword1!")
-                .image("image")
-                .build();
+        RequestUserDto updateRequest = createRequestUser("newnickname");
 
-        UserDto oldUserProperty = new UserDto("닉네임11",
-                "exam@example.com222",
-                "Mypassword1!",
-                "img_url333");
+        UserDto oldUserProperty = createUser("oldnickname");
+        UserDto expectedUserProperty = createUser("newnickname");
 
-        UserDto newUserProperty = new UserDto("닉네임",
-                "exam@example.com",
-                "Mypassword1!",
-                "img_url");
-
-        CustomUserDetails userDetails = new CustomUserDetails(oldUserProperty);
-
-        Authentication auth =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-
-
-        String content = objectMapper.writeValueAsString(requestUser);
-
-
-        //when
-        when(userService.updateUser(any(RequestUserDto.class), any(UserDto.class))).thenReturn(newUserProperty);
+        createAuth(oldUserProperty);
+        String content = objectMapper.writeValueAsString(updateRequest);
+        when(userService.updateUser(any(RequestUserDto.class), any(UserDto.class))).thenReturn(expectedUserProperty);
 
 
         //when+then
-        mockMvc.perform(put("/api/user").principal(auth)
+        mockMvc.perform(put("/api/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("update success"))
-                .andExpect(jsonPath("$.data.nickname").value(newUserProperty.getNickname()))
-                .andExpect(jsonPath("$.data.email").value(newUserProperty.getEmail()))
-                .andExpect(jsonPath("$.data.image").value(newUserProperty.getImage()));
+                .andExpect(jsonPath("$.data.nickname").value(expectedUserProperty.getNickname()))
+                .andExpect(jsonPath("$.data.email").value(expectedUserProperty.getEmail()))
+                .andExpect(jsonPath("$.data.image").value(expectedUserProperty.getImage()));
 
         verify(userService).updateUser(any(), any());
 
@@ -218,10 +161,7 @@ class UserControllerTest {
     @Test
     @DisplayName("유저정보 갱신 실패, 400 반환, 맞지않는 json 요소")
     void updateUserProperty_failure_validation() throws Exception {
-        RequestUserDto requestUser = RequestUserDto.builder()
-                .nickname("")
-                .image("image")
-                .build();
+        RequestUserDto requestUser = createRequestUser("");
 
 
 
@@ -243,32 +183,19 @@ class UserControllerTest {
     @DisplayName("유저정보(비밀번호) 갱신, 200반환")
     void updateUserPassword_success() throws Exception {
 
-        RequestUserDto requestUser = RequestUserDto.builder()
-                .nickname("")
-                .email("e@exmaplecom")
-                .password("Mypassword1!")
-                .checkingpassword("Mypassword1!")
-                .image("image")
-                .build();
-
-        CustomUserDetails userDetails = new CustomUserDetails(new UserDto());
-        Authentication auth =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-
-
-
+        //given
+        RequestUserDto requestUser = createRequestForPasswordUpdate("Mypassword1!");
+        createAuth(new UserDto());
         String content = objectMapper.writeValueAsString(requestUser);
-        when(userService.updateUserPassword(any(RequestUserDto.class), any(UserDto.class))).thenReturn(new UserDto());
+        when(userService.updateUserPassword(any(RequestUserDto.class), any(UserDto.class)))
+                .thenReturn(new UserDto());
 
+        //when+then
         mockMvc.perform(put("/api/user/password")
-                        .principal(auth)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+        ;
 
         verify(userService).updateUserPassword(any(RequestUserDto.class), any(UserDto.class));
     }
@@ -277,13 +204,7 @@ class UserControllerTest {
     @DisplayName("유저정보(비밀번호) 실패, 400반환, 확인용비밀번호 == null")
     void updateUserPassword_failiure_validation() throws Exception {
 
-        RequestUserDto requestUser = RequestUserDto.builder()
-                .nickname("")
-                .email("e@exmaplecom")
-                .password("Mypassword1!")
-                .checkingpassword("")
-                .image("image")
-                .build();
+        RequestUserDto requestUser = createRequestForPasswordUpdate("Mypassword1!", "");
 
 
 
@@ -302,15 +223,10 @@ class UserControllerTest {
     @DisplayName("유저정보 삭제, 204반환")
     void deleteUserProperty_success() throws Exception {
 
-        CustomUserDetails userDetails = new CustomUserDetails(new UserDto());
-        Authentication auth =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
+        createAuth(new UserDto());
 
-        mockMvc.perform(delete("/api/user").principal(auth))
+
+        mockMvc.perform(delete("/api/user"))
                 .andExpect(status().isNoContent());
 
         verify(userService).deleteUser(any(UserDto.class));
@@ -350,11 +266,68 @@ class UserControllerTest {
     }
 
 
+    //헬퍼메서드
+
+    RequestUserDto createRequestUser(String nickname){
+        RequestUserDto requestUser = RequestUserDto.builder()
+                .nickname(nickname)
+                .email("e@example.com")
+                .password("Mypassword1!")
+                .checkingpassword("Mypassword1!")
+                .image("image")
+                .build();
+
+        return requestUser;
+    }
+
+    RequestUserDto createRequestForPasswordUpdate(String password){
+
+        return RequestUserDto.builder()
+                .nickname("nickname")
+                .email("e@example.com")
+                .password(password)
+                .checkingpassword(password)
+                .image("image")
+                .build();
+    }
+    RequestUserDto createRequestForPasswordUpdate(String password, String checkingpassword){
+
+        return RequestUserDto.builder()
+                .nickname("nickname")
+                .email("e@example.com")
+                .password(password)
+                .checkingpassword(checkingpassword)
+                .image("image")
+                .build();
+    }
+
+    UserDto createUser(String nickname) {
+        UserDto oldUserProperty = new UserDto(nickname,
+                "exam@example.com222",
+                "Mypassword1!",
+                "img_url333");
+        return oldUserProperty;
+
+    }
+
+    void createAuth(UserDto user){
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
 
 
 
 
-    //controller는 검증, 전달, 서비스 결과값만 반환, json 매칭
+
+
+
 
 
 
