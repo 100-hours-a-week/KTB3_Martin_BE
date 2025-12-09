@@ -1,19 +1,16 @@
 package com.example._th_assignment.ApiController;
 
 
-import com.example._th_assignment.ApiResponse.ApiResponse;
-import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.ApiController.ImageType.ImageType;
+import com.example._th_assignment.ApiResponse.ApiResponse;
+import com.example._th_assignment.CustomAnnotation.LoginUser;
+import com.example._th_assignment.Dto.UserDto;
 import com.example._th_assignment.Service.FileStorageService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -22,10 +19,6 @@ import java.util.Map;
 public class ImageApiController {
 
     private final FileStorageService fileStorageService;
-
-    private static final String TYPE_POSTS = "posts";
-    private static final String TYPE_PROFILES = "profiles";
-
 
     @Autowired
     public ImageApiController(FileStorageService fileStorageService) {
@@ -47,21 +40,16 @@ public class ImageApiController {
 
 
 
-    public void deleteImage(HttpServletRequest request ) {
-        HttpSession session = request.getSession(false);
-        if (session != null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session is null");
-        UserDto userDto = (UserDto) session.getAttribute("user");
+    public void deleteImage(@LoginUser UserDto userDto) {
 
-        String oldimageurl = userDto.getImage();
-
-        fileStorageService.deleteImage(oldimageurl);
+        fileStorageService.deleteImage(userDto.getEmail());
     }
 
     @PutMapping("/{type}")
-    public ResponseEntity<?> updateImage(HttpServletRequest request,
+    public ResponseEntity<?> updateImage(@LoginUser UserDto user,
                                          @PathVariable String type,
                                          @RequestParam MultipartFile image) {
-        deleteImage(request);
+        deleteImage(user);
         return postImage(type, image);
     }
 

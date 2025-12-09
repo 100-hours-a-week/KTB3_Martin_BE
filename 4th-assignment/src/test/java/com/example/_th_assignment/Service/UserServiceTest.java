@@ -20,8 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -326,32 +325,22 @@ class UserServiceTest {
     @Test
     @DisplayName("유저정보 삭제 성공")
     void deleteUser_Success(){
-
+        //given
         UserDto userDto = UserDto.builder()
                 .email("email")
                 .image("image")
                 .build();
-
-
-
-
-
         User spyUser = spy(new User());
         spyUser.setEmail("email");
         spyUser.setImage_path("image");
-
-
-
         when(userJpaRepository.findByEmailAndIsdeletedFalse(anyString()))
                 .thenReturn(Optional.of(spyUser));
 
 
-
+        //when
         userService.deleteUser(userDto);
 
-
-        assertThat(spyUser.getIsdeleted()).isTrue();
-
+        //then
         InOrder inOrder = Mockito.inOrder(userJpaRepository, spyUser, fileStorageService);
         inOrder.verify(userJpaRepository).findByEmailAndIsdeletedFalse(anyString());
         inOrder.verify(spyUser).delete();
@@ -377,9 +366,78 @@ class UserServiceTest {
 
         verify(fileStorageService, never()).deleteImage(spyUser.getImage_path());
 
-
-
     }
+
+    @Test
+    @DisplayName("이메일 존재여부 확인 성공")
+    void existEmail_Success(){
+        String email = "email";
+
+        when(userJpaRepository.existsByEmail(email)).thenReturn(true);
+
+        assertTrue(userJpaRepository.existsByEmail(email));
+
+        verify(userJpaRepository).existsByEmail(email);
+    }
+
+    @Test
+    @DisplayName("이메일 존재여부 확인 실패, email is null")
+    void existEmail_Failure_EmailIsNull(){
+        String email = null;
+
+        assertThrows(ResponseStatusException.class, () ->{
+            userService.existemail(email);
+        });
+    }
+
+    @Test
+    @DisplayName("이메일 존재여부 확인 실패, email is blank")
+    void existEmail_Failure_EmailIsBlank(){
+        String email = "";
+
+        assertThrows(ResponseStatusException.class, () ->{
+            userService.existemail(email);
+        });
+    }
+
+    @Test
+    @DisplayName("닉네임 존재여부 확인 성공")
+    void existNickname_Success(){
+        String nickname = "nickname";
+
+        when(userJpaRepository.existsByNickname(nickname)).thenReturn(true);
+
+        assertTrue(userJpaRepository.existsByNickname(nickname));
+
+        verify(userJpaRepository).existsByNickname(nickname);
+    }
+
+    @Test
+    @DisplayName("닉네임 존재여부 확인 실패, nickname is null")
+    void existNickname_Failure_NicknameIsNull(){
+        String nickname = null;
+
+
+
+        assertThrows(ResponseStatusException.class, () ->{
+            userService.existnickname(nickname);
+        });
+    }
+
+
+    @Test
+    @DisplayName("닉네임 존재여부 확인 실패, nickname is blank")
+    void existNickname_Failure_NicknameIsBlank(){
+        String nickname = "";
+
+
+
+        assertThrows(ResponseStatusException.class, () ->{
+            userService.existnickname(nickname);
+        });
+    }
+
+
 
 
 

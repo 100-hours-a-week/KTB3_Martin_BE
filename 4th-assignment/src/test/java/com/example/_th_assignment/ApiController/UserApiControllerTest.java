@@ -334,7 +334,7 @@ class UserControllerTest {
     //헬퍼메서드
 
     private RequestUserDto createRequestUser(String nickname){
-        RequestUserDto requestUser = RequestUserDto.builder()
+        return RequestUserDto.builder()
                 .nickname(nickname)
                 .email("e@example.com")
                 .password("Mypassword1!")
@@ -342,7 +342,6 @@ class UserControllerTest {
                 .image("image")
                 .build();
 
-        return requestUser;
     }
 
     private RequestUserDto createRequestForPasswordUpdate(String password){
@@ -367,11 +366,10 @@ class UserControllerTest {
     }
 
     private UserDto createUser(String nickname) {
-        UserDto oldUserProperty = new UserDto(nickname,
+        return new UserDto(nickname,
                 "exam@example.com222",
                 "Mypassword1!",
                 "img_url333");
-        return oldUserProperty;
 
     }
 
