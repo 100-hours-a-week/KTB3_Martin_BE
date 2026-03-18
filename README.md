@@ -57,7 +57,7 @@
       - 해결
 
 - **세션에 유저 정보 미저장**
-  - customUserDetail을 구현하우에 service로 생성한뒤에 provider로 넘김
+  - customUserDetail을 구현후에 service로 생성한뒤에 provider로 넘김
   - 로그인시에 successHandler 동작 확인
   - 그러나 로그인 이후 유저정보에 접근시에 403발생
     - 아직 인가를 구현하지 않았기에 다른 문제라 생각됐음
